@@ -1,5 +1,5 @@
 use std::sync::Mutex;
-use tauri::{AppHandle, Emitter, Manager, RunEvent};
+use tauri::{AppHandle, Emitter, Manager, RunEvent, WebviewUrl, WebviewWindowBuilder};
 
 // Store opened file paths for later retrieval
 struct OpenedFiles(Mutex<Vec<String>>);
@@ -16,46 +16,45 @@ fn clear_opened_files(state: tauri::State<OpenedFiles>) {
     files.clear();
 }
 
-#[cfg(target_os = "macos")]
-fn bring_window_to_front(app: &AppHandle) {
-    use cocoa::appkit::{NSWindow, NSApplication, NSApplicationActivationPolicy};
-    use cocoa::base::{id, nil};
-    use objc::runtime::YES;
-    use objc::*;
-
+/// Creates or shows window
+fn open_window(app: &AppHandle) {
+    // Check if window exists (warm start - app was already running)
     if let Some(window) = app.get_webview_window("main") {
-        if let Ok(ns_window) = window.ns_window() {
-            unsafe {
-                let ns_window = ns_window as id;
-                let ns_app: id = cocoa::appkit::NSApp();
+        // Window exists - just show it on current space
+        let _ = window.show();
+        let _ = window.set_focus();
+        return;
+    }
 
-                // Set collection behavior BEFORE showing:
-                // NSWindowCollectionBehaviorCanJoinAllSpaces = 1 << 0
-                // NSWindowCollectionBehaviorFullScreenAuxiliary = 1 << 8
-                let behavior: u64 = (1 << 0) | (1 << 8);
-                let _: () = msg_send![ns_window, setCollectionBehavior: behavior];
+    // Cold start - window doesn't exist yet
+    // Wait for macOS space switch to complete, then create window on Desktop
+    std::thread::sleep(std::time::Duration::from_millis(300));
 
-                // Set window level to appear over fullscreen apps
-                let _: () = msg_send![ns_window, setLevel: 101i64];
-
-                // Ensure app is regular
-                ns_app.setActivationPolicy_(NSApplicationActivationPolicy::NSApplicationActivationPolicyRegular);
-
-                // Show and bring to front using NSWindow directly
-                ns_window.makeKeyAndOrderFront_(nil);
-
-                // Force activate
-                let _: () = msg_send![ns_app, activateIgnoringOtherApps: YES];
+    // Create new window (will appear on Desktop after space switch)
+    if let Ok(window) = WebviewWindowBuilder::new(app, "main", WebviewUrl::default())
+        .title("JustViewer")
+        .inner_size(800.0, 600.0)
+        .resizable(true)
+        .visible(true)
+        .build()
+    {
+        // Setup close handler - hide instead of close
+        let w = window.clone();
+        window.on_window_event(move |event| {
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                api.prevent_close();
+                let _ = w.hide();
             }
-        }
+        });
+
+        let _ = window.set_focus();
     }
 }
 
-#[cfg(not(target_os = "macos"))]
-fn bring_window_to_front(_app: &AppHandle) {}
 
 fn process_urls(urls: Vec<url::Url>, state: &tauri::State<OpenedFiles>, app_handle: &AppHandle) {
-    let mut files = state.0.lock().unwrap();
+    // Collect paths first
+    let mut paths: Vec<String> = Vec::new();
 
     for url in urls {
         let path = if url.scheme() == "file" {
@@ -69,14 +68,33 @@ fn process_urls(urls: Vec<url::Url>, state: &tauri::State<OpenedFiles>, app_hand
         };
 
         if let Some(path) = path {
-            files.push(path.clone());
-            let _ = app_handle.emit("file-opened", path);
+            paths.push(path);
         }
     }
 
-    // Bring window to front after processing
-    drop(files); // Release the lock first
-    bring_window_to_front(app_handle);
+    if paths.is_empty() {
+        return;
+    }
+
+    // Store in state
+    {
+        let mut files = state.0.lock().unwrap();
+        for path in &paths {
+            files.push(path.clone());
+        }
+    }
+
+    // Open window (creates new on cold start, shows existing on warm start)
+    open_window(app_handle);
+
+    // Emit file-opened events after window is ready
+    let app_clone = app_handle.clone();
+    std::thread::spawn(move || {
+        std::thread::sleep(std::time::Duration::from_millis(150));
+        for path in paths {
+            let _ = app_clone.emit("file-opened", path);
+        }
+    });
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -89,33 +107,8 @@ pub fn run() {
         .manage(OpenedFiles(Mutex::new(Vec::new())))
         .invoke_handler(tauri::generate_handler![get_opened_files, clear_opened_files])
         .setup(|app| {
-            // Handle window close - hide instead of destroy
-            if let Some(window) = app.get_webview_window("main") {
-                // Set window properties at startup
-                #[cfg(target_os = "macos")]
-                {
-                    use cocoa::base::id;
-                    use objc::*;
-
-                    if let Ok(ns_window) = window.ns_window() {
-                        unsafe {
-                            let ns_window = ns_window as id;
-                            // NSWindowCollectionBehaviorCanJoinAllSpaces | NSWindowCollectionBehaviorFullScreenAuxiliary
-                            let behavior: u64 = (1 << 0) | (1 << 8);
-                            let _: () = msg_send![ns_window, setCollectionBehavior: behavior];
-                        }
-                    }
-                }
-
-                let w = window.clone();
-                window.on_window_event(move |event| {
-                    if let tauri::WindowEvent::CloseRequested { api, .. } = event {
-                        println!("Rust: Close requested - hiding window");
-                        api.prevent_close();
-                        let _ = w.hide();
-                    }
-                });
-            }
+            // LSUIElement in Info.plist makes this a background app (no dock icon, no space switching)
+            // Windows are created on demand
 
             // Check for URLs passed at startup (cold start)
             #[cfg(any(target_os = "macos", target_os = "ios"))]
@@ -150,9 +143,8 @@ pub fn run() {
                 let state = app_handle.state::<OpenedFiles>();
                 process_urls(urls, &state, app_handle);
             }
-            RunEvent::Ready => {
-                bring_window_to_front(app_handle);
-            }
+            // Don't create window on Ready - only when file is opened
+            RunEvent::Ready => {}
             // Keep app running even when all windows are closed
             RunEvent::ExitRequested { api, .. } => {
                 api.prevent_exit();
