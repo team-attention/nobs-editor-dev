@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
 // Use native Rust commands for file I/O (bypass fs plugin scope restrictions)
 import { getCurrentWindow } from "@tauri-apps/api/window";
@@ -196,23 +195,12 @@ function App() {
   }, [openFile, saveFile]);
 
   useEffect(() => {
-    // Listen for file-opened events from Rust
-    const unlisten = listen<string>("file-opened", async (event) => {
-      await loadFile(event.payload);
-    });
-
-    // Check for files opened before frontend was ready
-    (async () => {
-      const openedFiles = await invoke<string[]>("get_opened_files");
-      if (openedFiles.length > 0) {
-        await loadFile(openedFiles[0]);
-        await invoke("clear_opened_files");
-      }
-    })();
-
-    return () => {
-      unlisten.then(fn => fn());
-    };
+    // Read file path from URL query parameter (passed by Rust backend)
+    const params = new URLSearchParams(window.location.search);
+    const filePath = params.get("file");
+    if (filePath) {
+      loadFile(decodeURIComponent(filePath));
+    }
   }, [loadFile]);
 
   // Hide window instead of closing (keep app running)

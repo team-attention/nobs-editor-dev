@@ -1,20 +1,10 @@
+use std::collections::HashMap;
 use std::sync::Mutex;
-use tauri::{AppHandle, Emitter, Manager, RunEvent, WebviewUrl, WebviewWindowBuilder};
+use std::time::{SystemTime, UNIX_EPOCH};
+use tauri::{AppHandle, Manager, RunEvent, WebviewUrl, WebviewWindowBuilder};
 
-// Store opened file paths for later retrieval
-struct OpenedFiles(Mutex<Vec<String>>);
-
-#[tauri::command]
-fn get_opened_files(state: tauri::State<OpenedFiles>) -> Vec<String> {
-    let files = state.0.lock().unwrap();
-    files.clone()
-}
-
-#[tauri::command]
-fn clear_opened_files(state: tauri::State<OpenedFiles>) {
-    let mut files = state.0.lock().unwrap();
-    files.clear();
-}
+// Track which file is open in which window (file_path -> window_label)
+struct OpenWindows(Mutex<HashMap<String, String>>);
 
 #[tauri::command]
 fn read_file(path: String) -> Result<String, String> {
@@ -55,47 +45,78 @@ fn bring_window_to_front(window: &tauri::WebviewWindow) {
     }
 }
 
-/// Creates or shows window
-fn open_window(app: &AppHandle) {
-    // Check if window exists (warm start - app was already running)
-    if let Some(window) = app.get_webview_window("main") {
-        let _ = window.show();
-        #[cfg(target_os = "macos")]
-        bring_window_to_front(&window);
-        let _ = window.set_focus();
-        return;
+/// Opens a window for the given file path.
+/// If the file is already open in a window, shows and focuses that window.
+/// Otherwise, creates a new window for the file.
+fn open_window_for_file(app: &AppHandle, path: &str, state: &tauri::State<OpenWindows>) {
+    let mut windows = state.0.lock().unwrap();
+
+    // Check if file is already open in a window
+    if let Some(label) = windows.get(path) {
+        if let Some(window) = app.get_webview_window(label) {
+            let _ = window.show();
+            #[cfg(target_os = "macos")]
+            bring_window_to_front(&window);
+            let _ = window.set_focus();
+            return;
+        } else {
+            // Window was destroyed, remove stale entry
+            windows.remove(path);
+        }
     }
 
-    // Cold start - create new window
-    if let Ok(window) = WebviewWindowBuilder::new(app, "main", WebviewUrl::default())
+    // Generate unique window label using timestamp
+    let timestamp = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis();
+    let label = format!("window_{}", timestamp);
+
+    // Create URL with file path as query parameter
+    let encoded_path = urlencoding::encode(path);
+    let url = WebviewUrl::App(format!("?file={}", encoded_path).into());
+
+    // Create new window
+    if let Ok(window) = WebviewWindowBuilder::new(app, &label, url)
         .title("JustViewer")
         .inner_size(800.0, 600.0)
         .resizable(true)
         .visible(false)
         .build()
     {
+        // Store mapping before releasing lock
+        windows.insert(path.to_string(), label.clone());
+        drop(windows); // Release lock before setting up event handler
+
         #[cfg(target_os = "macos")]
         bring_window_to_front(&window);
 
         let _ = window.show();
         let _ = window.set_focus();
 
-        // Setup close handler - hide instead of close
+        // Setup close handler - hide instead of close, and clean up state on destroy
         let w = window.clone();
+        let file_path = path.to_string();
+        let app_handle = app.clone();
         window.on_window_event(move |event| {
-            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
-                api.prevent_close();
-                let _ = w.hide();
+            match event {
+                tauri::WindowEvent::CloseRequested { api, .. } => {
+                    api.prevent_close();
+                    let _ = w.hide();
+                }
+                tauri::WindowEvent::Destroyed => {
+                    // Clean up state when window is destroyed
+                    let state = app_handle.state::<OpenWindows>();
+                    let mut windows = state.0.lock().unwrap();
+                    windows.remove(&file_path);
+                }
+                _ => {}
             }
         });
     }
 }
 
-
-fn process_urls(urls: Vec<url::Url>, state: &tauri::State<OpenedFiles>, app_handle: &AppHandle) {
-    // Collect paths first
-    let mut paths: Vec<String> = Vec::new();
-
+fn process_urls(urls: Vec<url::Url>, state: &tauri::State<OpenWindows>, app_handle: &AppHandle) {
     for url in urls {
         let path = if url.scheme() == "file" {
             url.to_file_path().ok().map(|p| p.to_string_lossy().to_string())
@@ -108,33 +129,9 @@ fn process_urls(urls: Vec<url::Url>, state: &tauri::State<OpenedFiles>, app_hand
         };
 
         if let Some(path) = path {
-            paths.push(path);
+            open_window_for_file(app_handle, &path, state);
         }
     }
-
-    if paths.is_empty() {
-        return;
-    }
-
-    // Store in state
-    {
-        let mut files = state.0.lock().unwrap();
-        for path in &paths {
-            files.push(path.clone());
-        }
-    }
-
-    // Open window (creates new on cold start, shows existing on warm start)
-    open_window(app_handle);
-
-    // Emit file-opened events after window is ready
-    let app_clone = app_handle.clone();
-    std::thread::spawn(move || {
-        std::thread::sleep(std::time::Duration::from_millis(150));
-        for path in paths {
-            let _ = app_clone.emit("file-opened", path);
-        }
-    });
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -144,8 +141,8 @@ pub fn run() {
         .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
-        .manage(OpenedFiles(Mutex::new(Vec::new())))
-        .invoke_handler(tauri::generate_handler![get_opened_files, clear_opened_files, read_file, write_file])
+        .manage(OpenWindows(Mutex::new(HashMap::new())))
+        .invoke_handler(tauri::generate_handler![read_file, write_file])
         .setup(|app| {
             // LSUIElement in Info.plist makes this a background app (no dock icon, no space switching)
             // Windows are created on demand
@@ -156,8 +153,7 @@ pub fn run() {
                 use tauri_plugin_deep_link::DeepLinkExt;
                 if let Ok(urls) = app.deep_link().get_current() {
                     if let Some(urls) = urls {
-                        let state = app.state::<OpenedFiles>();
-                        let mut files = state.0.lock().unwrap();
+                        let state = app.state::<OpenWindows>();
                         for url in urls {
                             let path = if url.scheme() == "file" {
                                 url.to_file_path().ok().map(|p| p.to_string_lossy().to_string())
@@ -165,7 +161,7 @@ pub fn run() {
                                 None
                             };
                             if let Some(path) = path {
-                                files.push(path);
+                                open_window_for_file(app.handle(), &path, &state);
                             }
                         }
                     }
@@ -180,7 +176,7 @@ pub fn run() {
     app.run(|app_handle, event| {
         match event {
             RunEvent::Opened { urls } => {
-                let state = app_handle.state::<OpenedFiles>();
+                let state = app_handle.state::<OpenWindows>();
                 process_urls(urls, &state, app_handle);
             }
             // Don't create window on Ready - only when file is opened
