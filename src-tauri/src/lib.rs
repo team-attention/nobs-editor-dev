@@ -16,11 +16,31 @@ fn clear_opened_files(state: tauri::State<OpenedFiles>) {
     files.clear();
 }
 
+/// Set window collection behavior to move to active space
+#[cfg(target_os = "macos")]
+fn set_move_to_active_space(window: &tauri::WebviewWindow) {
+    use cocoa::appkit::{NSWindow, NSWindowCollectionBehavior};
+    use cocoa::base::id;
+
+    if let Ok(ns_window) = window.ns_window() {
+        unsafe {
+            let ns_window = ns_window as id;
+            ns_window.setCollectionBehavior_(
+                NSWindowCollectionBehavior::NSWindowCollectionBehaviorMoveToActiveSpace,
+            );
+        }
+    }
+}
+
 /// Creates or shows window
 fn open_window(app: &AppHandle) {
     // Check if window exists (warm start - app was already running)
     if let Some(window) = app.get_webview_window("main") {
-        // Window exists - just show it on current space
+        // Set behavior to move to active space before showing
+        #[cfg(target_os = "macos")]
+        set_move_to_active_space(&window);
+
+        // Window exists - show it (will move to current space)
         let _ = window.show();
         let _ = window.set_focus();
         return;
