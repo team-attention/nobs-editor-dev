@@ -32,8 +32,8 @@
     },
     "fileAssociations": [
       {
-        "ext": ["md", "markdown", "txt"],
-        "name": "Markdown Document",
+        "ext": ["md", "markdown", "txt", "json", "yaml", "yml", "toml", "xml", "log", "ini", "cfg", "conf", "csv"],
+        "name": "Text Document",
         "role": "Viewer"
       }
     ]

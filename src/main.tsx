@@ -64,7 +64,8 @@ function App() {
     const selected = await open({
       multiple: false,
       filters: [
-        { name: "Markdown", extensions: ["md", "markdown", "txt"] },
+        { name: "Markdown", extensions: ["md", "markdown"] },
+        { name: "Text Files", extensions: ["txt", "json", "yaml", "yml", "toml", "xml", "log", "ini", "cfg", "conf", "csv"] },
         { name: "All Files", extensions: ["*"] }
       ]
     });
