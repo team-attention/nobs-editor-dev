@@ -3,10 +3,12 @@ name: Mirror to Public
 on:
   push:
     branches: [main]
+    tags: ['v*']
   workflow_dispatch:
 
 jobs:
   mirror-code:
+    if: github.ref_type == 'branch'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout private
@@ -51,3 +53,23 @@ jobs:
             git commit -m "$ORIGINAL_MSG"
             git push
           fi
+
+  mirror-tag:
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create tag on public repo
+        env:
+          GH_TOKEN: ${{ secrets.MIRROR_TOKEN }}
+        run: |
+          TAG_NAME="${{ github.ref_name }}"
+
+          PUBLIC_SHA=$(gh api repos/team-attention/nobs-editor/git/refs/heads/main --jq '.object.sha')
+
+          gh api -X DELETE "repos/team-attention/nobs-editor/git/refs/tags/${TAG_NAME}" 2>/dev/null || true
+
+          gh api repos/team-attention/nobs-editor/git/refs \
+            -f ref="refs/tags/${TAG_NAME}" \
+            -f sha="${PUBLIC_SHA}"
+
+          echo "Created tag ${TAG_NAME} on public repo at ${PUBLIC_SHA}"
