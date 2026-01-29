@@ -16,6 +16,16 @@ import { syntaxHighlighting, defaultHighlightStyle, bracketMatching, foldGutter 
 import { json } from "@codemirror/lang-json";
 import { yaml } from "@codemirror/lang-yaml";
 import { xml } from "@codemirror/lang-xml";
+import { javascript } from "@codemirror/lang-javascript";
+import { python } from "@codemirror/lang-python";
+import { css } from "@codemirror/lang-css";
+import { html } from "@codemirror/lang-html";
+import { rust } from "@codemirror/lang-rust";
+import { cpp } from "@codemirror/lang-cpp";
+import { go } from "@codemirror/lang-go";
+import { sql } from "@codemirror/lang-sql";
+import { StreamLanguage } from "@codemirror/language";
+import { shell } from "@codemirror/legacy-modes/mode/shell";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { highlightSelectionMatches } from "@codemirror/search";
 
@@ -33,6 +43,16 @@ function getLanguageExtension(filename: string): Extension {
     case "json": return json();
     case "yaml": case "yml": return yaml();
     case "xml": return xml();
+    case "js": case "jsx": case "mjs": case "cjs": return javascript();
+    case "ts": case "tsx": return javascript({ typescript: true });
+    case "py": case "pyw": return python();
+    case "css": case "scss": case "less": return css();
+    case "html": case "htm": case "vue": case "svelte": return html();
+    case "rs": return rust();
+    case "c": case "h": case "cpp": case "hpp": case "cc": case "cxx": return cpp();
+    case "go": return go();
+    case "sql": return sql();
+    case "sh": case "bash": case "zsh": return StreamLanguage.define(shell);
     default: return [];
   }
 }
@@ -149,7 +169,12 @@ function App() {
       multiple: false,
       filters: [
         { name: "Markdown", extensions: ["md", "markdown"] },
-        { name: "Text Files", extensions: ["txt", "json", "yaml", "yml", "toml", "xml", "log", "ini", "cfg", "conf", "csv"] },
+        { name: "JavaScript/TypeScript", extensions: ["js", "jsx", "ts", "tsx", "mjs", "cjs"] },
+        { name: "Python", extensions: ["py", "pyw"] },
+        { name: "Web", extensions: ["html", "htm", "css", "scss", "less", "vue", "svelte"] },
+        { name: "Systems", extensions: ["rs", "c", "h", "cpp", "hpp", "cc", "cxx", "go"] },
+        { name: "Data/Config", extensions: ["json", "yaml", "yml", "toml", "xml", "sql", "csv"] },
+        { name: "Shell/Text", extensions: ["sh", "bash", "zsh", "txt", "log", "ini", "cfg", "conf"] },
         { name: "All Files", extensions: ["*"] }
       ]
     });
