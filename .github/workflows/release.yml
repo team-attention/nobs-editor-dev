@@ -63,7 +63,7 @@ jobs:
           APPLE_SIGNING_IDENTITY: "Developer ID Application: Jacob Park (D86BXTY5VR)"
         with:
           tagName: ${{ github.ref_name }}
-          releaseName: 'JustViewer ${{ github.ref_name }}'
+          releaseName: 'nobs-viewer ${{ github.ref_name }}'
           releaseBody: |
             ## What's Changed
 
@@ -72,9 +72,9 @@ jobs:
             ## Installation
 
             1. Download the `.dmg` file below
-            2. Open the DMG and drag JustViewer to Applications
-            3. Open JustViewer from Applications
-            4. Open markdown files with JustViewer
+            2. Open the DMG and drag nobs-viewer to Applications
+            3. Open nobs-viewer from Applications
+            4. Open markdown files with nobs-viewer
 
             > **Note**: macOS 10.15+ required.
           releaseDraft: false

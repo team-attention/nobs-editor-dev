@@ -1,19 +1,19 @@
-# JustViewer
+# nobs-viewer
 
 Lightweight doc viewer for macOS. Markdown, JSON, YAML, whatever. No bloated IDE needed.
 
 ## Download
 
-**[Download Latest Release](https://github.com/eatnug/JustViewer/releases/latest)**
+**[Download Latest Release](https://github.com/eatnug/nobs-viewer/releases/latest)**
 
 ## How to Use
 
-1. Open JustViewer
+1. Open nobs-viewer
 2. Open a file (Cmd+O or drag & drop)
 3. Edit inline if needed
 4. Save (Cmd+S)
 
-Or right-click any file in Finder → Open With → JustViewer
+Or right-click any file in Finder → Open With → nobs-viewer
 
 ## Supported Formats
 

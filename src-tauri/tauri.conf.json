@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "JustViewer",
+  "productName": "nobs-viewer",
   "version": "0.3.2",
-  "identifier": "com.eatnug.justviewer",
+  "identifier": "com.eatnug.nobsviewer",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -41,7 +41,7 @@
   "plugins": {
     "deep-link": {
       "desktop": {
-        "schemes": ["justviewer"]
+        "schemes": ["nobsviewer"]
       }
     }
   }
