@@ -16,6 +16,11 @@ fn write_file(path: String, content: String) -> Result<(), String> {
     std::fs::write(&path, &content).map_err(|e| format!("Failed to write {}: {}", path, e))
 }
 
+#[tauri::command]
+fn open_file(path: String, app: AppHandle, state: tauri::State<OpenWindows>) {
+    open_window_for_file(&app, &path, &state);
+}
+
 /// Bring window to front on the current space (works with LSUIElement apps)
 #[cfg(target_os = "macos")]
 fn bring_window_to_front(window: &tauri::WebviewWindow) {
@@ -30,17 +35,21 @@ fn bring_window_to_front(window: &tauri::WebviewWindow) {
             let ns_app: id = cocoa::appkit::NSApp();
 
             // CanJoinAllSpaces (1<<0) | FullScreenAuxiliary (1<<8)
+            // This allows the window to appear on fullscreen spaces
             let behavior: u64 = (1 << 0) | (1 << 8);
             let _: () = msg_send![ns_window, setCollectionBehavior: behavior];
 
-            // Window level above fullscreen apps
-            let _: () = msg_send![ns_window, setLevel: 101i64];
+            // Normal window level - respects standard z-ordering
+            let _: () = msg_send![ns_window, setLevel: 0i64];
 
             // Temporarily become a regular app so macOS brings us forward
             ns_app.setActivationPolicy_(NSApplicationActivationPolicy::NSApplicationActivationPolicyRegular);
 
             ns_window.makeKeyAndOrderFront_(nil);
             let _: () = msg_send![ns_app, activateIgnoringOtherApps: YES];
+
+            // Return to accessory/background app after activation
+            ns_app.setActivationPolicy_(NSApplicationActivationPolicy::NSApplicationActivationPolicyAccessory);
         }
     }
 }
@@ -142,7 +151,7 @@ pub fn run() {
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
         .manage(OpenWindows(Mutex::new(HashMap::new())))
-        .invoke_handler(tauri::generate_handler![read_file, write_file])
+        .invoke_handler(tauri::generate_handler![read_file, write_file, open_file])
         .setup(|app| {
             // LSUIElement in Info.plist makes this a background app (no dock icon, no space switching)
             // Windows are created on demand

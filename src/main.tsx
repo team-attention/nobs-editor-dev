@@ -155,9 +155,10 @@ function App() {
     });
 
     if (selected && typeof selected === "string") {
-      await loadFile(selected);
+      // Open file in a new window (or focus existing window if already open)
+      await invoke("open_file", { path: selected });
     }
-  }, [loadFile]);
+  }, []);
 
   const saveFile = useCallback(async () => {
     if (!currentFilePath) return;
