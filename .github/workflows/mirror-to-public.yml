@@ -33,6 +33,7 @@ jobs:
             --exclude='.spets' \
             --exclude='.git' \
             --exclude='.github/workflows/mirror-to-public.yml' \
+            --exclude='.github/workflows/spets.yml' \
             private/ public/
 
       - name: Commit and push
