@@ -1,0 +1,71 @@
+{
+  "taskId": "2026-01-29-i-want-sea-3ros",
+  "description": "I want search feature",
+  "currentStep": "02-implement",
+  "stepIndex": 2,
+  "totalSteps": 2,
+  "status": "completed",
+  "phase": "review",
+  "createdAt": "2026-01-29T08:44:26.200Z",
+  "updatedAt": "2026-01-29T08:59:02.093Z",
+  "exploreOutput": {
+    "summary": "Ready to implement search feature. The codebase uses a monolithic App component with React hooks. Toolbar uses flexbox layout with specific styling patterns. CodeMirror search extension is already installed. Need to add search UI after filename in toolbar, implement search for both editors, and add keyboard shortcut.",
+    "relevantFiles": [
+      {
+        "path": "src/main.tsx",
+        "purpose": "Main file to modify - add search state, UI, and logic",
+        "keySnippets": [
+          "import { highlightSelectionMatches } from \"@codemirror/search\";",
+          "const [showStylePanel, setShowStylePanel] = useState(false);",
+          "if (e.key === \"o\") { e.preventDefault(); openFile(); }",
+          "<span id=\"filename\">{filename}</span>"
+        ]
+      },
+      {
+        "path": "src/styles.css",
+        "purpose": "Add search bar styles following existing patterns",
+        "keySnippets": [
+          ".inline-style-bar { display: flex; align-items: center; gap: 8px; }",
+          ".style-separator { width: 1px; height: 20px; background: var(--border-color); }",
+          "#toolbar button { width: 32px; height: 32px; border-radius: 6px; }"
+        ]
+      }
+    ],
+    "patterns": [
+      "State with useState hooks",
+      "Toolbar uses flexbox with gap: 12px",
+      "Buttons are 32x32px with 6px border-radius",
+      "CSS variables for theming (--bg-primary, --text-secondary, etc.)",
+      "Dark mode via @media (prefers-color-scheme: dark)"
+    ],
+    "constraints": [
+      "Must add search after filename but before style controls",
+      "Use -webkit-app-region: no-drag for interactive elements",
+      "Follow existing import patterns for @codemirror/search"
+    ],
+    "dependencies": [
+      "@codemirror/search already installed and partially imported",
+      "Need to import: search, SearchQuery, findNext, findPrevious"
+    ]
+  },
+  "context": "{\"summary\":\"Ready to implement search feature. The codebase uses a monolithic App component with React hooks. Toolbar uses flexbox layout with specific styling patterns. CodeMirror search extension is already installed. Need to add search UI after filename in toolbar, implement search for both editors, and add keyboard shortcut.\",\"relevantFiles\":[{\"path\":\"src/main.tsx\",\"purpose\":\"Main file to modify - add search state, UI, and logic\",\"keySnippets\":[\"import { highlightSelectionMatches } from \\\"@codemirror/search\\\";\",\"const [showStylePanel, setShowStylePanel] = useState(false);\",\"if (e.key === \\\"o\\\") { e.preventDefault(); openFile(); }\",\"<span id=\\\"filename\\\">{filename}</span>\"]},{\"path\":\"src/styles.css\",\"purpose\":\"Add search bar styles following existing patterns\",\"keySnippets\":[\".inline-style-bar { display: flex; align-items: center; gap: 8px; }\",\".style-separator { width: 1px; height: 20px; background: var(--border-color); }\",\"#toolbar button { width: 32px; height: 32px; border-radius: 6px; }\"]}],\"patterns\":[\"State with useState hooks\",\"Toolbar uses flexbox with gap: 12px\",\"Buttons are 32x32px with 6px border-radius\",\"CSS variables for theming (--bg-primary, --text-secondary, etc.)\",\"Dark mode via @media (prefers-color-scheme: dark)\"],\"constraints\":[\"Must add search after filename but before style controls\",\"Use -webkit-app-region: no-drag for interactive elements\",\"Follow existing import patterns for @codemirror/search\"],\"dependencies\":[\"@codemirror/search already installed and partially imported\",\"Need to import: search, SearchQuery, findNext, findPrevious\"]}",
+  "verifyAttempts": 1,
+  "verifyOutput": {
+    "passed": true,
+    "score": {
+      "requirementsCoverage": 95,
+      "templateCompliance": 100,
+      "consistency": 95,
+      "completeness": 90
+    },
+    "issues": [
+      {
+        "severity": "info",
+        "category": "completeness",
+        "description": "BlockNote visual highlighting not implemented due to API limitations",
+        "suggestion": "Document clearly states the deviation and reasoning"
+      }
+    ],
+    "summary": "Implementation complete. All planned tasks finished. Code compiles and follows existing patterns. One documented deviation for BlockNote highlighting due to API limitations."
+  }
+}
