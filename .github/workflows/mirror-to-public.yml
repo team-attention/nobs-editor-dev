@@ -1,0 +1,34 @@
+name: Mirror to Public Repo
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Remove private files
+        run: |
+          rm -rf .spets
+          rm -rf .github/workflows/mirror-to-public.yml
+
+      - name: Restore original .gitignore
+        run: |
+          echo '.spets/' >> .gitignore
+
+      - name: Push to public repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Mirror from dev" --allow-empty
+          git remote add public https://x-access-token:${{ secrets.MIRROR_TOKEN }}@github.com/team-attention/nobs-editor.git
+          git push public main --force
