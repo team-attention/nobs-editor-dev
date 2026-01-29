@@ -1,0 +1,78 @@
+{
+  "taskId": "2026-01-29-i-want-a-b-62rp",
+  "description": "I want a better way to render frontmatter",
+  "currentStep": "02-implement",
+  "stepIndex": 2,
+  "totalSteps": 2,
+  "status": "completed",
+  "phase": "review",
+  "createdAt": "2026-01-29T06:21:46.147Z",
+  "updatedAt": "2026-01-29T06:40:17.133Z",
+  "exploreOutput": {
+    "summary": "Implementation context for adding a collapsible frontmatter panel to nobs-editor. The codebase is a single-file React app (src/main.tsx) with a separate CSS file (src/styles.css). Key integration points: loadFile callback at line 99 for extracting frontmatter before parsing, saveFile callback at line 209 for prepending frontmatter when saving. UI pattern to follow: the existing style panel (lines 345-398 in main.tsx, lines 111-171 in styles.css) provides a template for the collapsible panel design.",
+    "relevantFiles": [
+      {
+        "path": "src/main.tsx",
+        "purpose": "Main React app - all frontmatter logic will be added here",
+        "keySnippets": [
+          "const [blockStyles, setBlockStyles] = useState<BlockStyles>(DEFAULT_BLOCK_STYLES);",
+          "const loadFile = useCallback(async (path: string) => { ... const blocks = await editor.tryParseMarkdownToBlocks(content); ... }",
+          "const saveFile = useCallback(async () => { ... const markdown = await editor.blocksToMarkdownLossy(editor.document); ... }",
+          "{showStylePanel && (<div className=\"style-panel\" ref={stylePanelRef}>...labels and inputs...</div>)}",
+          "<div id=\"editor-container\" style={blockStyleVars}><BlockNoteView editor={editor} /></div>"
+        ]
+      },
+      {
+        "path": "src/styles.css",
+        "purpose": "CSS styles - frontmatter panel styles will be added here",
+        "keySnippets": [
+          ".style-panel { position: absolute; ... padding: 16px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; }",
+          ".style-panel label { display: flex; align-items: center; justify-content: space-between; gap: 12px; }",
+          ".style-panel input[type=\"number\"] { width: 60px; padding: 4px 8px; ... }",
+          "@media (prefers-color-scheme: dark) { .style-panel { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); } }"
+        ]
+      }
+    ],
+    "patterns": [
+      "State: useState<Type>(defaultValue) with interface for complex state",
+      "Refs: useRef for DOM elements and external libraries",
+      "Callbacks: useCallback with dependency arrays for memoization",
+      "Effects: useEffect with cleanup functions",
+      "Conditional rendering: {condition && <Component />}",
+      "CSS variables for theming: var(--text-primary), var(--bg-secondary)",
+      "Input styling: label wrapping span + input with flexbox"
+    ],
+    "constraints": [
+      "TypeScript with React 19",
+      "No JSX fragments - use div wrappers",
+      "CSS uses :root variables for light/dark mode",
+      "Panel must work above BlockNoteView without breaking layout",
+      "Frontmatter must be preserved exactly when no edits made"
+    ],
+    "dependencies": [
+      "React 19 hooks (useState, useEffect, useCallback, useRef)",
+      "No frontmatter library needed - use regex parsing",
+      "BlockNote editor instance for markdown parsing"
+    ]
+  },
+  "context": "{\"summary\":\"Implementation context for adding a collapsible frontmatter panel to nobs-editor. The codebase is a single-file React app (src/main.tsx) with a separate CSS file (src/styles.css). Key integration points: loadFile callback at line 99 for extracting frontmatter before parsing, saveFile callback at line 209 for prepending frontmatter when saving. UI pattern to follow: the existing style panel (lines 345-398 in main.tsx, lines 111-171 in styles.css) provides a template for the collapsible panel design.\",\"relevantFiles\":[{\"path\":\"src/main.tsx\",\"purpose\":\"Main React app - all frontmatter logic will be added here\",\"keySnippets\":[\"const [blockStyles, setBlockStyles] = useState<BlockStyles>(DEFAULT_BLOCK_STYLES);\",\"const loadFile = useCallback(async (path: string) => { ... const blocks = await editor.tryParseMarkdownToBlocks(content); ... }\",\"const saveFile = useCallback(async () => { ... const markdown = await editor.blocksToMarkdownLossy(editor.document); ... }\",\"{showStylePanel && (<div className=\\\"style-panel\\\" ref={stylePanelRef}>...labels and inputs...</div>)}\",\"<div id=\\\"editor-container\\\" style={blockStyleVars}><BlockNoteView editor={editor} /></div>\"]},{\"path\":\"src/styles.css\",\"purpose\":\"CSS styles - frontmatter panel styles will be added here\",\"keySnippets\":[\".style-panel { position: absolute; ... padding: 16px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; }\",\".style-panel label { display: flex; align-items: center; justify-content: space-between; gap: 12px; }\",\".style-panel input[type=\\\"number\\\"] { width: 60px; padding: 4px 8px; ... }\",\"@media (prefers-color-scheme: dark) { .style-panel { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); } }\"]}],\"patterns\":[\"State: useState<Type>(defaultValue) with interface for complex state\",\"Refs: useRef for DOM elements and external libraries\",\"Callbacks: useCallback with dependency arrays for memoization\",\"Effects: useEffect with cleanup functions\",\"Conditional rendering: {condition && <Component />}\",\"CSS variables for theming: var(--text-primary), var(--bg-secondary)\",\"Input styling: label wrapping span + input with flexbox\"],\"constraints\":[\"TypeScript with React 19\",\"No JSX fragments - use div wrappers\",\"CSS uses :root variables for light/dark mode\",\"Panel must work above BlockNoteView without breaking layout\",\"Frontmatter must be preserved exactly when no edits made\"],\"dependencies\":[\"React 19 hooks (useState, useEffect, useCallback, useRef)\",\"No frontmatter library needed - use regex parsing\",\"BlockNote editor instance for markdown parsing\"]}",
+  "verifyAttempts": 1,
+  "verifyOutput": {
+    "passed": true,
+    "score": {
+      "requirementsCoverage": 95,
+      "templateCompliance": 95,
+      "consistency": 95,
+      "completeness": 90
+    },
+    "issues": [
+      {
+        "severity": "info",
+        "category": "completeness",
+        "description": "Build verification is comprehensive but manual QA testing recommended",
+        "suggestion": "Run the app and test with actual markdown files containing frontmatter"
+      }
+    ],
+    "summary": "Implementation document is complete with all 7 tasks documented, acceptance criteria verified with build success, and clear deviations noted. Code changes are properly described."
+  }
+}
