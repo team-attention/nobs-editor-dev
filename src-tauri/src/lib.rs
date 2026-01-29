@@ -34,9 +34,9 @@ fn bring_window_to_front(window: &tauri::WebviewWindow) {
             let ns_window = ns_window as id;
             let ns_app: id = cocoa::appkit::NSApp();
 
-            // CanJoinAllSpaces (1<<0) | FullScreenAuxiliary (1<<8)
-            // This allows the window to appear on fullscreen spaces
-            let behavior: u64 = (1 << 0) | (1 << 8);
+            // FullScreenAuxiliary (1<<8) allows the window to appear on fullscreen spaces
+            // Note: removed CanJoinAllSpaces (1<<0) so windows stay on their original space
+            let behavior: u64 = 1 << 8;
             let _: () = msg_send![ns_window, setCollectionBehavior: behavior];
 
             // Normal window level - respects standard z-ordering
