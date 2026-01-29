@@ -62,9 +62,10 @@ function parseFrontmatter(content: string): ParsedContent {
     if (colonIndex > 0) {
       const key = line.slice(0, colonIndex).trim();
       let value = line.slice(colonIndex + 1).trim();
-      // Remove surrounding quotes if present
-      if ((value.startsWith('"') && value.endsWith('"')) ||
-          (value.startsWith("'") && value.endsWith("'"))) {
+      // Remove surrounding quotes if present and handle escaped quotes
+      if (value.startsWith('"') && value.endsWith('"')) {
+        value = value.slice(1, -1).replace(/\\"/g, '"');
+      } else if (value.startsWith("'") && value.endsWith("'")) {
         value = value.slice(1, -1);
       }
       frontmatter[key] = value;
@@ -400,7 +401,11 @@ function App() {
   };
 
   const addFrontmatterProperty = () => {
-    const newKey = `property${Object.keys(frontmatter).length + 1}`;
+    let i = 1;
+    let newKey = "new-property";
+    while (Object.prototype.hasOwnProperty.call(frontmatter, newKey)) {
+      newKey = `new-property-${i++}`;
+    }
     setFrontmatter(prev => ({ ...prev, [newKey]: "" }));
   };
 
@@ -415,6 +420,9 @@ function App() {
   const renameFrontmatterKey = (oldKey: string, newKey: string) => {
     if (oldKey === newKey || !newKey.trim()) return;
     setFrontmatter(prev => {
+      if (Object.prototype.hasOwnProperty.call(prev, newKey)) {
+        return prev; // newKey already exists, abort
+      }
       const entries = Object.entries(prev);
       const updated: FrontmatterData = {};
       for (const [k, v] of entries) {
@@ -491,8 +499,8 @@ function App() {
               </button>
               {showFrontmatter && (
                 <div className="frontmatter-content">
-                  {frontmatterEntries.map(([key, value]) => (
-                    <div key={key} className="frontmatter-row">
+                  {frontmatterEntries.map(([key, value], index) => (
+                    <div key={index} className="frontmatter-row">
                       <input
                         type="text"
                         className="frontmatter-key"

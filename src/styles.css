@@ -11,6 +11,8 @@
   --text-secondary: #787774;
   --border-color: #e9e9e7;
   --accent-color: #2383e2;
+  --bg-danger-hover: #ffebee;
+  --text-danger: #d32f2f;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -21,6 +23,8 @@
     --text-secondary: #9b9a97;
     --border-color: #373737;
     --accent-color: #529cca;
+    --bg-danger-hover: rgba(211, 47, 47, 0.2);
+    --text-danger: #ef5350;
   }
 }
 
@@ -378,15 +382,8 @@ html, body, #root {
 }
 
 .frontmatter-delete:hover {
-  background: #ffebee;
-  color: #d32f2f;
-}
-
-@media (prefers-color-scheme: dark) {
-  .frontmatter-delete:hover {
-    background: rgba(211, 47, 47, 0.2);
-    color: #ef5350;
-  }
+  background: var(--bg-danger-hover);
+  color: var(--text-danger);
 }
 
 .frontmatter-add {
