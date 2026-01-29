@@ -1,34 +1,53 @@
-name: Mirror to Public Repo
+name: Mirror to Public
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 jobs:
-  mirror:
+  mirror-code:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout private
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          path: private
 
-      - name: Remove private files
-        run: |
-          rm -rf .spets
-          rm -rf .github/workflows/mirror-to-public.yml
+      - name: Checkout public
+        uses: actions/checkout@v4
+        with:
+          repository: team-attention/nobs-editor
+          token: ${{ secrets.MIRROR_TOKEN }}
+          path: public
 
-      - name: Restore original .gitignore
+      - name: Sync files (exclude private-only)
         run: |
-          echo '.spets/' >> .gitignore
+          cd public
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+          cd ..
 
-      - name: Push to public repo
+          rsync -av \
+            --exclude='.spets' \
+            --exclude='.git' \
+            --exclude='.github/workflows/mirror-to-public.yml' \
+            private/ public/
+
+      - name: Commit and push
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          cd public
+
+          ORIGINAL_MSG=$(cd ../private && git log -1 --pretty=%B)
+          ORIGINAL_AUTHOR=$(cd ../private && git log -1 --pretty="%an")
+          ORIGINAL_EMAIL=$(cd ../private && git log -1 --pretty="%ae")
+
+          git config user.name "$ORIGINAL_AUTHOR"
+          git config user.email "$ORIGINAL_EMAIL"
           git add -A
-          git commit -m "Mirror from dev" --allow-empty
-          git remote add public https://x-access-token:${{ secrets.MIRROR_TOKEN }}@github.com/team-attention/nobs-editor.git
-          git push public main --force
+
+          if git diff --staged --quiet; then
+            echo "No changes to sync"
+          else
+            git commit -m "$ORIGINAL_MSG"
+            git push
+          fi
