@@ -1,4 +1,4 @@
-# nobs-editor
+# Nobs Editor
 
 Lightweight doc viewer for macOS. Markdown, JSON, YAML, whatever. No bloated IDE needed.
 
@@ -8,12 +8,12 @@ Lightweight doc viewer for macOS. Markdown, JSON, YAML, whatever. No bloated IDE
 
 ## How to Use
 
-1. Open nobs-editor
+1. Open Nobs Editor
 2. Open a file (Cmd+O or drag & drop)
 3. Edit inline if needed
 4. Save (Cmd+S)
 
-Or right-click any file in Finder → Open With → nobs-editor
+Or right-click any file in Finder → Open With → Nobs Editor
 
 ## Supported Formats
 

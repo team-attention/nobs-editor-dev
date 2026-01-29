@@ -87,7 +87,7 @@ fn open_window_for_file(app: &AppHandle, path: &str, state: &tauri::State<OpenWi
 
     // Create new window
     if let Ok(window) = WebviewWindowBuilder::new(app, &label, url)
-        .title("nobs-editor")
+        .title("Nobs Editor")
         .inner_size(800.0, 600.0)
         .resizable(true)
         .visible(false)

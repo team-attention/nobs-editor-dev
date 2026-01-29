@@ -63,7 +63,7 @@ jobs:
           APPLE_SIGNING_IDENTITY: "Developer ID Application: Jacob Park (D86BXTY5VR)"
         with:
           tagName: ${{ github.ref_name }}
-          releaseName: 'nobs-editor ${{ github.ref_name }}'
+          releaseName: 'Nobs Editor ${{ github.ref_name }}'
           releaseBody: |
             ## What's Changed
 
@@ -72,9 +72,9 @@ jobs:
             ## Installation
 
             1. Download the `.dmg` file below
-            2. Open the DMG and drag nobs-editor to Applications
-            3. Open nobs-editor from Applications
-            4. Open markdown files with nobs-editor
+            2. Open the DMG and drag Nobs Editor to Applications
+            3. Open Nobs Editor from Applications
+            4. Open markdown files with Nobs Editor
 
             > **Note**: macOS 10.15+ required.
           releaseDraft: false
