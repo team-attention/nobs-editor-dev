@@ -1,0 +1,48 @@
+{
+  "taskId": "2026-01-29-task-x6lf",
+  "description": "파일 내용이 새로고침이 안되는거같아. 파일이 열려있을떄는 물론이고 새로 열어도",
+  "currentStep": "02-implement",
+  "stepIndex": 2,
+  "totalSteps": 2,
+  "status": "phase_execute",
+  "phase": "execute",
+  "createdAt": "2026-01-29T05:56:36.081Z",
+  "updatedAt": "2026-01-29T06:03:28.699Z",
+  "exploreOutput": {
+    "summary": "구현에 필요한 두 파일을 분석 완료. Rust 백엔드(lib.rs)에서 window.emit()을 사용하여 reload-file 이벤트를 전송하고, 프론트엔드(main.tsx)에서 @tauri-apps/api/event의 listen을 사용하여 이벤트를 수신한 후 loadFile()을 호출하면 됨.",
+    "relevantFiles": [
+      {
+        "path": "src-tauri/src/lib.rs",
+        "purpose": "Rust 백엔드 - 기존 창 재사용 시 이벤트 emit 추가 위치",
+        "keySnippets": [
+          "lines 64-70: 기존 창 재사용 시 show()/set_focus() 후 return하는 부분에 emit 추가 필요",
+          "window.emit(\"reload-file\", ()) 패턴 사용"
+        ]
+      },
+      {
+        "path": "src/main.tsx",
+        "purpose": "React 프론트엔드 - 이벤트 리스너 추가 위치",
+        "keySnippets": [
+          "lines 232-252: 기존 onCloseRequested 이벤트 리스너 패턴 참조",
+          "@tauri-apps/api/event에서 listen import 필요",
+          "useEffect 내에서 listen(reload-file) 설정, cleanup에서 unlisten"
+        ]
+      }
+    ],
+    "patterns": [
+      "Tauri window.emit() 사용하여 특정 창에 이벤트 전송",
+      "프론트엔드에서 @tauri-apps/api/event의 listen 사용",
+      "useEffect cleanup에서 unlisten 호출"
+    ],
+    "constraints": [
+      "currentFilePath 상태가 있어야 loadFile 호출 가능",
+      "URL 쿼리 파라미터에서 파일 경로를 읽어야 함"
+    ],
+    "dependencies": [
+      "@tauri-apps/api/event - listen 함수",
+      "tauri::WebviewWindow::emit() - Rust 측"
+    ]
+  },
+  "context": "{\"summary\":\"구현에 필요한 두 파일을 분석 완료. Rust 백엔드(lib.rs)에서 window.emit()을 사용하여 reload-file 이벤트를 전송하고, 프론트엔드(main.tsx)에서 @tauri-apps/api/event의 listen을 사용하여 이벤트를 수신한 후 loadFile()을 호출하면 됨.\",\"relevantFiles\":[{\"path\":\"src-tauri/src/lib.rs\",\"purpose\":\"Rust 백엔드 - 기존 창 재사용 시 이벤트 emit 추가 위치\",\"keySnippets\":[\"lines 64-70: 기존 창 재사용 시 show()/set_focus() 후 return하는 부분에 emit 추가 필요\",\"window.emit(\\\"reload-file\\\", ()) 패턴 사용\"]},{\"path\":\"src/main.tsx\",\"purpose\":\"React 프론트엔드 - 이벤트 리스너 추가 위치\",\"keySnippets\":[\"lines 232-252: 기존 onCloseRequested 이벤트 리스너 패턴 참조\",\"@tauri-apps/api/event에서 listen import 필요\",\"useEffect 내에서 listen(reload-file) 설정, cleanup에서 unlisten\"]}],\"patterns\":[\"Tauri window.emit() 사용하여 특정 창에 이벤트 전송\",\"프론트엔드에서 @tauri-apps/api/event의 listen 사용\",\"useEffect cleanup에서 unlisten 호출\"],\"constraints\":[\"currentFilePath 상태가 있어야 loadFile 호출 가능\",\"URL 쿼리 파라미터에서 파일 경로를 읽어야 함\"],\"dependencies\":[\"@tauri-apps/api/event - listen 함수\",\"tauri::WebviewWindow::emit() - Rust 측\"]}",
+  "verifyAttempts": 0
+}
