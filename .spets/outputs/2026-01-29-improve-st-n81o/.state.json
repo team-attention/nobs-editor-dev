@@ -1,0 +1,72 @@
+{
+  "taskId": "2026-01-29-improve-st-n81o",
+  "description": "improve style customization. I want it to be like editing tool bar spread right next to file name. not drop down. and it should be different in markdown and other files. makrdown has styles per blocks ( h1, h2, ~~ , code block, ~~~ ), code files has would have different categories",
+  "currentStep": "02-implement",
+  "stepIndex": 2,
+  "totalSteps": 2,
+  "status": "completed",
+  "phase": "review",
+  "createdAt": "2026-01-29T06:20:57.572Z",
+  "updatedAt": "2026-01-29T06:39:04.203Z",
+  "exploreOutput": {
+    "summary": "Implementation step for inline style toolbar. The plan was approved and identifies key modifications in src/main.tsx (replace dropdown with inline controls, remove showStylePanel state, add conditional rendering for markdown vs code) and src/styles.css (replace .style-panel with .inline-style-bar, .style-control, .style-btn classes). The current implementation uses BlockStyles interface with h1Size, h2Size, h3Size, paragraphSize, codeSize, and CSS variables for injection.",
+    "relevantFiles": [
+      {
+        "path": "src/main.tsx",
+        "purpose": "Main file to modify - contains toolbar JSX (lines 327-401), BlockStyles interface (36-50), style panel dropdown (334-400), and click-outside handler (299-311) to remove",
+        "keySnippets": [
+          "interface BlockStyles { h1Size: number; h2Size: number; h3Size: number; paragraphSize: number; codeSize: number; }",
+          "const [showStylePanel, setShowStylePanel] = useState(false);",
+          "<span id=\"filename\">{filename}</span>"
+        ]
+      },
+      {
+        "path": "src/styles.css",
+        "purpose": "Stylesheet to modify - contains .style-panel dropdown styles (111-171) to replace with inline control styles",
+        "keySnippets": [
+          ".style-panel { position: absolute; top: 100%; ... }",
+          "#toolbar { display: flex; align-items: center; gap: 12px; }"
+        ]
+      },
+      {
+        "path": ".spets/outputs/2026-01-29-improve-st-n81o/01-plan.md",
+        "purpose": "Approved plan with detailed task breakdown for implementation",
+        "keySnippets": [
+          "Task 1: Create inline style control components",
+          "Task 2: Update toolbar CSS",
+          "Task 3: Add visual separators",
+          "Task 4: Remove click-outside handler"
+        ]
+      }
+    ],
+    "patterns": [
+      "Single-file React app with inline component definitions",
+      "CSS custom properties for dynamic styling via React CSSProperties",
+      "useState hooks for state management",
+      "-webkit-app-region for macOS window dragging control"
+    ],
+    "constraints": [
+      "TypeScript with React 19",
+      "Must maintain window dragging functionality",
+      "Single component architecture in main.tsx",
+      "Dark mode via CSS media queries"
+    ],
+    "dependencies": [
+      "React hooks: useState, useEffect, useCallback, useRef",
+      "CSS custom properties for block styling"
+    ]
+  },
+  "context": "{\"summary\":\"Implementation step for inline style toolbar. The plan was approved and identifies key modifications in src/main.tsx (replace dropdown with inline controls, remove showStylePanel state, add conditional rendering for markdown vs code) and src/styles.css (replace .style-panel with .inline-style-bar, .style-control, .style-btn classes). The current implementation uses BlockStyles interface with h1Size, h2Size, h3Size, paragraphSize, codeSize, and CSS variables for injection.\",\"relevantFiles\":[{\"path\":\"src/main.tsx\",\"purpose\":\"Main file to modify - contains toolbar JSX (lines 327-401), BlockStyles interface (36-50), style panel dropdown (334-400), and click-outside handler (299-311) to remove\",\"keySnippets\":[\"interface BlockStyles { h1Size: number; h2Size: number; h3Size: number; paragraphSize: number; codeSize: number; }\",\"const [showStylePanel, setShowStylePanel] = useState(false);\",\"<span id=\\\"filename\\\">{filename}</span>\"]},{\"path\":\"src/styles.css\",\"purpose\":\"Stylesheet to modify - contains .style-panel dropdown styles (111-171) to replace with inline control styles\",\"keySnippets\":[\".style-panel { position: absolute; top: 100%; ... }\",\"#toolbar { display: flex; align-items: center; gap: 12px; }\"]},{\"path\":\".spets/outputs/2026-01-29-improve-st-n81o/01-plan.md\",\"purpose\":\"Approved plan with detailed task breakdown for implementation\",\"keySnippets\":[\"Task 1: Create inline style control components\",\"Task 2: Update toolbar CSS\",\"Task 3: Add visual separators\",\"Task 4: Remove click-outside handler\"]}],\"patterns\":[\"Single-file React app with inline component definitions\",\"CSS custom properties for dynamic styling via React CSSProperties\",\"useState hooks for state management\",\"-webkit-app-region for macOS window dragging control\"],\"constraints\":[\"TypeScript with React 19\",\"Must maintain window dragging functionality\",\"Single component architecture in main.tsx\",\"Dark mode via CSS media queries\"],\"dependencies\":[\"React hooks: useState, useEffect, useCallback, useRef\",\"CSS custom properties for block styling\"]}",
+  "verifyAttempts": 1,
+  "verifyOutput": {
+    "passed": true,
+    "score": {
+      "requirementsCoverage": 95,
+      "templateCompliance": 95,
+      "consistency": 90,
+      "completeness": 90
+    },
+    "issues": [],
+    "summary": "Implementation document is complete with all 4 tasks completed. All acceptance criteria are checked with evidence. Build verification confirmed successful. Code changes align with the approved plan."
+  }
+}
