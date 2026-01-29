@@ -1,0 +1,38 @@
+{
+  "taskId": "2026-01-28-looks-like-wmtv",
+  "description": "looks like opening it above terminal stopped working. it redirects to desktop space. look at commit history",
+  "currentStep": "02-implement",
+  "stepIndex": 2,
+  "totalSteps": 2,
+  "status": "phase_execute",
+  "phase": "execute",
+  "createdAt": "2026-01-28T13:10:14.495Z",
+  "updatedAt": "2026-01-28T13:23:31.631Z",
+  "exploreOutput": {
+    "summary": "The file src-tauri/src/lib.rs needs a 2-line addition. The open_window() function at line 36-72 has a cold start path (line 49-71) that creates a new window but does not call set_move_to_active_space(). The fix is to add #[cfg(target_os = \"macos\")] and set_move_to_active_space(&window); inside the if let Ok(window) block at line 63, before the close handler setup.",
+    "relevantFiles": [
+      {
+        "path": "src-tauri/src/lib.rs",
+        "purpose": "Contains the open_window() function with the bug",
+        "keySnippets": [
+          "fn open_window(app: &AppHandle) at line 36",
+          "Cold start: if let Ok(window) = WebviewWindowBuilder::new(...).build() at line 54-59",
+          "Missing set_move_to_active_space call in cold start block",
+          "Warm start correctly calls set_move_to_active_space at line 40-41"
+        ]
+      }
+    ],
+    "patterns": [
+      "#[cfg(target_os = \"macos\")] guard before macOS-specific calls",
+      "set_move_to_active_space(&window) for NSWindowCollectionBehavior"
+    ],
+    "constraints": [
+      "Must use #[cfg(target_os = \"macos\")] guard for platform-specific code"
+    ],
+    "dependencies": [
+      "cocoa crate for NSWindow APIs"
+    ]
+  },
+  "context": "{\"summary\":\"The file src-tauri/src/lib.rs needs a 2-line addition. The open_window() function at line 36-72 has a cold start path (line 49-71) that creates a new window but does not call set_move_to_active_space(). The fix is to add #[cfg(target_os = \\\"macos\\\")] and set_move_to_active_space(&window); inside the if let Ok(window) block at line 63, before the close handler setup.\",\"relevantFiles\":[{\"path\":\"src-tauri/src/lib.rs\",\"purpose\":\"Contains the open_window() function with the bug\",\"keySnippets\":[\"fn open_window(app: &AppHandle) at line 36\",\"Cold start: if let Ok(window) = WebviewWindowBuilder::new(...).build() at line 54-59\",\"Missing set_move_to_active_space call in cold start block\",\"Warm start correctly calls set_move_to_active_space at line 40-41\"]}],\"patterns\":[\"#[cfg(target_os = \\\"macos\\\")] guard before macOS-specific calls\",\"set_move_to_active_space(&window) for NSWindowCollectionBehavior\"],\"constraints\":[\"Must use #[cfg(target_os = \\\"macos\\\")] guard for platform-specific code\"],\"dependencies\":[\"cocoa crate for NSWindow APIs\"]}",
+  "verifyAttempts": 0
+}

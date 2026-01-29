@@ -1,0 +1,67 @@
+{
+  "taskId": "2026-01-29-nobs-edito-sd7p",
+  "description": "nobs editor should be shown as Recommended Application for normal code files and support syntax highlighting",
+  "currentStep": "02-implement",
+  "stepIndex": 2,
+  "totalSteps": 2,
+  "status": "completed",
+  "phase": "review",
+  "createdAt": "2026-01-29T01:27:49.030Z",
+  "updatedAt": "2026-01-29T01:38:10.822Z",
+  "exploreOutput": {
+    "summary": "For implementation, the key files are: src/main.tsx (contains getLanguageExtension() at lines 30-38 that needs extending, language imports at lines 16-18, and openFile dialog filters at lines 150-154), package.json (CodeMirror deps at lines 17-20), and src-tauri/tauri.conf.json (fileAssociations at lines 33-39). The codebase uses TypeScript with React hooks, CodeMirror v6 for code editing, and Tauri for desktop packaging. Implementation follows existing patterns exactly.",
+    "relevantFiles": [
+      {
+        "path": "src/main.tsx",
+        "purpose": "Main React component with getLanguageExtension() switch statement and file dialog filters to extend",
+        "keySnippets": [
+          "import { json } from \"@codemirror/lang-json\"; import { yaml } from \"@codemirror/lang-yaml\"; import { xml } from \"@codemirror/lang-xml\";",
+          "function getLanguageExtension(filename: string): Extension { const ext = filename.split(\".\").pop()?.toLowerCase() || \"\"; switch (ext) { case \"json\": return json(); case \"yaml\": case \"yml\": return yaml(); case \"xml\": return xml(); default: return []; } }",
+          "filters: [{ name: \"Markdown\", extensions: [\"md\", \"markdown\"] }, { name: \"Text Files\", extensions: [\"txt\", \"json\", \"yaml\", \"yml\", \"toml\", \"xml\", \"log\", \"ini\", \"cfg\", \"conf\", \"csv\"] }, { name: \"All Files\", extensions: [\"*\"] }]"
+        ]
+      },
+      {
+        "path": "package.json",
+        "purpose": "Dependencies file where new CodeMirror language packages need to be added",
+        "keySnippets": [
+          "\"@codemirror/lang-json\": \"^6.0.2\", \"@codemirror/lang-xml\": \"^6.1.0\", \"@codemirror/lang-yaml\": \"^6.1.2\""
+        ]
+      },
+      {
+        "path": "src-tauri/tauri.conf.json",
+        "purpose": "Tauri config with fileAssociations that need expanding for new code file types",
+        "keySnippets": [
+          "\"fileAssociations\": [{ \"ext\": [\"md\", \"markdown\", \"txt\", \"json\", \"yaml\", \"yml\", \"toml\", \"xml\", \"log\", \"ini\", \"cfg\", \"conf\", \"csv\"], \"name\": \"Text Document\", \"role\": \"Editor\" }]"
+        ]
+      }
+    ],
+    "patterns": [
+      "CodeMirror language imports: import { langName } from \"@codemirror/lang-langname\"",
+      "Switch statement pattern for extension mapping in getLanguageExtension()",
+      "File dialog filters array with name and extensions properties",
+      "Tauri fileAssociations with ext array, name string, and role: Editor"
+    ],
+    "constraints": [
+      "TypeScript with React 19",
+      "Must use CodeMirror v6 language extensions (not legacy modes where possible)",
+      "Shell highlighting requires @codemirror/legacy-modes with StreamLanguage wrapper"
+    ],
+    "dependencies": [
+      "Existing: @codemirror/lang-json, @codemirror/lang-xml, @codemirror/lang-yaml",
+      "To add: @codemirror/lang-javascript, @codemirror/lang-python, @codemirror/lang-css, @codemirror/lang-html, @codemirror/lang-rust, @codemirror/lang-cpp, @codemirror/lang-go, @codemirror/lang-sql, @codemirror/legacy-modes"
+    ]
+  },
+  "context": "{\"summary\":\"For implementation, the key files are: src/main.tsx (contains getLanguageExtension() at lines 30-38 that needs extending, language imports at lines 16-18, and openFile dialog filters at lines 150-154), package.json (CodeMirror deps at lines 17-20), and src-tauri/tauri.conf.json (fileAssociations at lines 33-39). The codebase uses TypeScript with React hooks, CodeMirror v6 for code editing, and Tauri for desktop packaging. Implementation follows existing patterns exactly.\",\"relevantFiles\":[{\"path\":\"src/main.tsx\",\"purpose\":\"Main React component with getLanguageExtension() switch statement and file dialog filters to extend\",\"keySnippets\":[\"import { json } from \\\"@codemirror/lang-json\\\"; import { yaml } from \\\"@codemirror/lang-yaml\\\"; import { xml } from \\\"@codemirror/lang-xml\\\";\",\"function getLanguageExtension(filename: string): Extension { const ext = filename.split(\\\".\\\").pop()?.toLowerCase() || \\\"\\\"; switch (ext) { case \\\"json\\\": return json(); case \\\"yaml\\\": case \\\"yml\\\": return yaml(); case \\\"xml\\\": return xml(); default: return []; } }\",\"filters: [{ name: \\\"Markdown\\\", extensions: [\\\"md\\\", \\\"markdown\\\"] }, { name: \\\"Text Files\\\", extensions: [\\\"txt\\\", \\\"json\\\", \\\"yaml\\\", \\\"yml\\\", \\\"toml\\\", \\\"xml\\\", \\\"log\\\", \\\"ini\\\", \\\"cfg\\\", \\\"conf\\\", \\\"csv\\\"] }, { name: \\\"All Files\\\", extensions: [\\\"*\\\"] }]\"]},{\"path\":\"package.json\",\"purpose\":\"Dependencies file where new CodeMirror language packages need to be added\",\"keySnippets\":[\"\\\"@codemirror/lang-json\\\": \\\"^6.0.2\\\", \\\"@codemirror/lang-xml\\\": \\\"^6.1.0\\\", \\\"@codemirror/lang-yaml\\\": \\\"^6.1.2\\\"\"]},{\"path\":\"src-tauri/tauri.conf.json\",\"purpose\":\"Tauri config with fileAssociations that need expanding for new code file types\",\"keySnippets\":[\"\\\"fileAssociations\\\": [{ \\\"ext\\\": [\\\"md\\\", \\\"markdown\\\", \\\"txt\\\", \\\"json\\\", \\\"yaml\\\", \\\"yml\\\", \\\"toml\\\", \\\"xml\\\", \\\"log\\\", \\\"ini\\\", \\\"cfg\\\", \\\"conf\\\", \\\"csv\\\"], \\\"name\\\": \\\"Text Document\\\", \\\"role\\\": \\\"Editor\\\" }]\"]}],\"patterns\":[\"CodeMirror language imports: import { langName } from \\\"@codemirror/lang-langname\\\"\",\"Switch statement pattern for extension mapping in getLanguageExtension()\",\"File dialog filters array with name and extensions properties\",\"Tauri fileAssociations with ext array, name string, and role: Editor\"],\"constraints\":[\"TypeScript with React 19\",\"Must use CodeMirror v6 language extensions (not legacy modes where possible)\",\"Shell highlighting requires @codemirror/legacy-modes with StreamLanguage wrapper\"],\"dependencies\":[\"Existing: @codemirror/lang-json, @codemirror/lang-xml, @codemirror/lang-yaml\",\"To add: @codemirror/lang-javascript, @codemirror/lang-python, @codemirror/lang-css, @codemirror/lang-html, @codemirror/lang-rust, @codemirror/lang-cpp, @codemirror/lang-go, @codemirror/lang-sql, @codemirror/legacy-modes\"]}",
+  "verifyAttempts": 1,
+  "verifyOutput": {
+    "passed": true,
+    "score": {
+      "requirementsCoverage": 95,
+      "templateCompliance": 95,
+      "consistency": 95,
+      "completeness": 95
+    },
+    "issues": [],
+    "summary": "Implementation document fully follows the template structure. All 4 tasks completed with status, files, changes, and verification. Acceptance criteria checked with evidence. Changes summary table complete. Deviations section states none. Verification section shows actual build output."
+  }
+}

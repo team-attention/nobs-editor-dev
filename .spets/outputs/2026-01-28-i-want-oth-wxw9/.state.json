@@ -1,0 +1,65 @@
+{
+  "taskId": "2026-01-28-i-want-oth-wxw9",
+  "description": "I want other files than markdown to be more prettified.",
+  "currentStep": "02-implement",
+  "stepIndex": 2,
+  "totalSteps": 2,
+  "status": "completed",
+  "phase": "review",
+  "createdAt": "2026-01-28T12:53:19.404Z",
+  "updatedAt": "2026-01-28T13:05:09.656Z",
+  "exploreOutput": {
+    "summary": "JustViewer is a Tauri+React app. src/main.tsx is the single React component (190 lines). It uses BlockNote for markdown editing, readTextFile/writeTextFile for file I/O. loadFile() at line 29 always parses as markdown. saveFile() at line 78 always exports as markdown. Conditional rendering at line 163. CSS variables for theming in src/styles.css. No test framework. Need to add CodeMirror 6 with file type branching.",
+    "relevantFiles": [
+      {
+        "path": "src/main.tsx",
+        "purpose": "Main component - needs file type detection, CodeMirror rendering, save branching",
+        "keySnippets": [
+          "const blocks = await editor.tryParseMarkdownToBlocks(content);",
+          "const markdown = await editor.blocksToMarkdownLossy(editor.document);"
+        ]
+      },
+      {
+        "path": "src/styles.css",
+        "purpose": "Styles - needs CodeMirror container styles and dark mode",
+        "keySnippets": [
+          "#editor-container { height: 100%; max-width: 900px; }"
+        ]
+      },
+      {
+        "path": "package.json",
+        "purpose": "Dependencies - needs CodeMirror packages added",
+        "keySnippets": []
+      }
+    ],
+    "patterns": [
+      "Single-file React component",
+      "useState/useCallback/useEffect hooks",
+      "CSS variables for theming",
+      "Conditional rendering with ternary"
+    ],
+    "constraints": [
+      "TypeScript strict mode",
+      "No test framework",
+      "Must keep BlockNote for markdown unchanged"
+    ],
+    "dependencies": [
+      "@tauri-apps/plugin-fs for file I/O",
+      "BlockNote for markdown editing",
+      "Need to add: codemirror, @codemirror/view, @codemirror/state, language packages"
+    ]
+  },
+  "context": "{\"summary\":\"JustViewer is a Tauri+React app. src/main.tsx is the single React component (190 lines). It uses BlockNote for markdown editing, readTextFile/writeTextFile for file I/O. loadFile() at line 29 always parses as markdown. saveFile() at line 78 always exports as markdown. Conditional rendering at line 163. CSS variables for theming in src/styles.css. No test framework. Need to add CodeMirror 6 with file type branching.\",\"relevantFiles\":[{\"path\":\"src/main.tsx\",\"purpose\":\"Main component - needs file type detection, CodeMirror rendering, save branching\",\"keySnippets\":[\"const blocks = await editor.tryParseMarkdownToBlocks(content);\",\"const markdown = await editor.blocksToMarkdownLossy(editor.document);\"]},{\"path\":\"src/styles.css\",\"purpose\":\"Styles - needs CodeMirror container styles and dark mode\",\"keySnippets\":[\"#editor-container { height: 100%; max-width: 900px; }\"]},{\"path\":\"package.json\",\"purpose\":\"Dependencies - needs CodeMirror packages added\",\"keySnippets\":[]}],\"patterns\":[\"Single-file React component\",\"useState/useCallback/useEffect hooks\",\"CSS variables for theming\",\"Conditional rendering with ternary\"],\"constraints\":[\"TypeScript strict mode\",\"No test framework\",\"Must keep BlockNote for markdown unchanged\"],\"dependencies\":[\"@tauri-apps/plugin-fs for file I/O\",\"BlockNote for markdown editing\",\"Need to add: codemirror, @codemirror/view, @codemirror/state, language packages\"]}",
+  "verifyAttempts": 1,
+  "verifyOutput": {
+    "passed": true,
+    "score": {
+      "requirementsCoverage": 95,
+      "templateCompliance": 90,
+      "consistency": 95,
+      "completeness": 90
+    },
+    "issues": [],
+    "summary": "Implementation follows the approved plan. All 6 tasks completed. TypeScript compiles cleanly, Vite build succeeds. CodeMirror renders for non-markdown files with syntax highlighting, line numbers, and editing. Markdown files unchanged."
+  }
+}

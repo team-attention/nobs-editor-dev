@@ -1,0 +1,11 @@
+{
+  "taskId": "2026-01-28-iterm-6ore",
+  "description": "이 앱이 iterm 으로 꽉 찬 스페이스에서 작업할때, 터미널에서 마크다운 파일 패스를 눌렀을때 브라우저들처럼 터미널 프로세스 위에서 떴으면 좋겠어",
+  "currentStep": "02-implement",
+  "stepIndex": 2,
+  "totalSteps": 2,
+  "status": "approve_pending",
+  "phase": "review",
+  "createdAt": "2026-01-27T15:39:30.892Z",
+  "updatedAt": "2026-01-27T15:49:46.846Z"
+}

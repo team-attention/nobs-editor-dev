@@ -1,0 +1,1173 @@
+{
+  "taskId": "2026-01-28-cover-othe-4nku",
+  "description": "cover other text files",
+  "currentStep": "01-plan",
+  "stepIndex": 1,
+  "totalSteps": 2,
+  "status": "phase_sections",
+  "phase": "draft",
+  "createdAt": "2026-01-28T12:15:01.636Z",
+  "updatedAt": "2026-01-28T12:16:39.635Z",
+  "exploreOutput": {
+    "summary": "JustViewer is a Tauri-based markdown viewer app for macOS with Notion-style inline editing using BlockNote. The app currently supports .md, .markdown, and .txt file extensions through file associations configured in tauri.conf.json. The task \"cover other text files\" likely means extending support to additional text file extensions beyond the current set.",
+    "relevantFiles": [
+      {
+        "path": "src-tauri/tauri.conf.json",
+        "purpose": "Contains fileAssociations configuration with current supported extensions",
+        "keySnippets": [
+          "\"fileAssociations\": [{\"ext\": [\"md\", \"markdown\", \"txt\"], \"name\": \"Markdown Document\", \"role\": \"Viewer\"}]"
+        ]
+      },
+      {
+        "path": "src/main.tsx",
+        "purpose": "Frontend file handling including file dialog filters and markdown parsing",
+        "keySnippets": [
+          "filters: [{name: \"Markdown\", extensions: [\"md\", \"markdown\", \"txt\"]}, {name: \"All Files\", extensions: [\"*\"]}]",
+          "editor.tryParseMarkdownToBlocks(content)",
+          "editor.blocksToMarkdownLossy(editor.document)"
+        ]
+      },
+      {
+        "path": "src-tauri/src/lib.rs",
+        "purpose": "Backend file handling - processes URLs and paths, no extension filtering",
+        "keySnippets": [
+          "fn process_urls(urls: Vec<url::Url>, state: &tauri::State<OpenedFiles>, app_handle: &AppHandle)"
+        ]
+      },
+      {
+        "path": "README.md",
+        "purpose": "Documents current file association support",
+        "keySnippets": [
+          "File Association - Open .md, .markdown, .txt files directly"
+        ]
+      }
+    ],
+    "patterns": [
+      "File extensions are configured in two places: tauri.conf.json (OS-level associations) and src/main.tsx (file dialog filters)",
+      "All text files are processed as markdown through BlockNote",
+      "No file extension validation in backend - any path is accepted"
+    ],
+    "constraints": [
+      "BlockNote editor parses content as markdown - non-markdown text files will be treated as plain text blocks",
+      "File association changes require rebuild and re-register with macOS",
+      "TypeScript with React frontend"
+    ],
+    "dependencies": [
+      "@blocknote/core, @blocknote/mantine, @blocknote/react for markdown editing",
+      "@tauri-apps/plugin-fs for file read/write",
+      "@tauri-apps/plugin-dialog for file open dialog"
+    ]
+  },
+  "context": "{\"summary\":\"JustViewer is a Tauri-based markdown viewer app for macOS with Notion-style inline editing using BlockNote. The app currently supports .md, .markdown, and .txt file extensions through file associations configured in tauri.conf.json. The task \\\"cover other text files\\\" likely means extending support to additional text file extensions beyond the current set.\",\"relevantFiles\":[{\"path\":\"src-tauri/tauri.conf.json\",\"purpose\":\"Contains fileAssociations configuration with current supported extensions\",\"keySnippets\":[\"\\\"fileAssociations\\\": [{\\\"ext\\\": [\\\"md\\\", \\\"markdown\\\", \\\"txt\\\"], \\\"name\\\": \\\"Markdown Document\\\", \\\"role\\\": \\\"Viewer\\\"}]\"]},{\"path\":\"src/main.tsx\",\"purpose\":\"Frontend file handling including file dialog filters and markdown parsing\",\"keySnippets\":[\"filters: [{name: \\\"Markdown\\\", extensions: [\\\"md\\\", \\\"markdown\\\", \\\"txt\\\"]}, {name: \\\"All Files\\\", extensions: [\\\"*\\\"]}]\",\"editor.tryParseMarkdownToBlocks(content)\",\"editor.blocksToMarkdownLossy(editor.document)\"]},{\"path\":\"src-tauri/src/lib.rs\",\"purpose\":\"Backend file handling - processes URLs and paths, no extension filtering\",\"keySnippets\":[\"fn process_urls(urls: Vec<url::Url>, state: &tauri::State<OpenedFiles>, app_handle: &AppHandle)\"]},{\"path\":\"README.md\",\"purpose\":\"Documents current file association support\",\"keySnippets\":[\"File Association - Open .md, .markdown, .txt files directly\"]}],\"patterns\":[\"File extensions are configured in two places: tauri.conf.json (OS-level associations) and src/main.tsx (file dialog filters)\",\"All text files are processed as markdown through BlockNote\",\"No file extension validation in backend - any path is accepted\"],\"constraints\":[\"BlockNote editor parses content as markdown - non-markdown text files will be treated as plain text blocks\",\"File association changes require rebuild and re-register with macOS\",\"TypeScript with React frontend\"],\"dependencies\":[\"@blocknote/core, @blocknote/mantine, @blocknote/react for markdown editing\",\"@tauri-apps/plugin-fs for file read/write\",\"@tauri-apps/plugin-dialog for file open dialog\"]}",
+  "qaHistory": [
+    {
+      "question": {
+        "id": "q1",
+        "question": "Which text file extensions should be added?",
+        "context": "Currently supports: .md, .markdown, .txt. Common text extensions include: .rst (reStructuredText), .org (Org mode), .adoc (AsciiDoc), .json, .yaml/.yml, .xml, .html, .css, .js, .ts, .py, .sh, .log, .conf, .ini, .toml, .csv, .tex",
+        "options": [
+          "Add common programming files (.json, .yaml, .xml, .html, .css, .js, .ts, .py)",
+          "Add documentation formats (.rst, .org, .adoc)",
+          "Add config files (.ini, .conf, .toml, .env)",
+          "Add all common text files",
+          "Let me specify"
+        ]
+      },
+      "answer": {
+        "questionId": "q1",
+        "answer": "All common text files - add all common text file extensions including programming files, documentation formats, config files, and more"
+      }
+    }
+  ],
+  "answers": [
+    {
+      "questionId": "q1",
+      "answer": "All common text files - add all common text file extensions including programming files, documentation formats, config files, and more"
+    }
+  ],
+  "sectionPlan": {
+    "stepName": "01-plan",
+    "sharedContext": {
+      "documentGoal": "cover other text files",
+      "stepName": "01-plan",
+      "stepInstruction": "# Plan Step\n\nYou are creating a technical implementation plan for the given task. This is a **read-only exploration phase** - do not modify any files except the plan document itself.\n\n## Your Goal\n\nThoroughly explore the codebase, understand existing patterns, and create a detailed, actionable implementation plan that can be executed with confidence by someone with zero context about the codebase.\n\n## Planning Principles\n\n### Systematic Over Ad-Hoc\n- Be methodical and thorough in exploration\n- D",
+      "totalSections": 40,
+      "treeOverview": "├── ## Summary\n├── ## Codebase Analysis\n│   ├── ### Current State\n│   └── ### Key Findings\n├── ## Architecture Decisions\n│   ├── ### Chosen Approach: [Approach Name]\n│   ├── ### Alternatives Considered\n│   └── ### Test Strategy\n├── ## Task Breakdown\n│   ├── ### Phase 1: [Phase Name - e.g., \"Type Definitions & Infrastructure\"]\n│   │   ├── #### Task 1: [Verb] [What] in [Specific File]\n│   │   └── #### Task 2: [Verb] [What] in [Specific File]\n│   ├── ### Phase 2: [Phase Name - e.g., \"Core Implementation\"]\n│   ├── ### Phase 3: [Phase Name - e.g., \"Testing\"]\n│   └── ### Phase 4: [Phase Name - e.g., \"Integration & Verification\"]\n├── ## Files to Modify\n├── ## Testing Strategy\n│   ├── ### Test Approach\n│   ├── ### Unit Tests\n│   ├── ### Integration Tests\n│   └── ### Manual Verification\n├── ## Acceptance Criteria\n│   ├── ### Implementation Complete\n│   ├── ### Tests Passing\n│   ├── ### Code Quality\n│   ├── ### Functionality\n│   └── ### Non-Regression\n├── ## Risks & Considerations\n│   ├── ### Technical Risks\n│   ├── ### Edge Cases\n│   ├── ### Dependencies\n│   └── ### Performance Considerations\n├── ## Implementation Notes\n│   ├── ### Code Patterns to Follow\n│   ├── ### Gotchas & Pitfalls\n│   ├── ### Common Mistakes to Avoid\n│   └── ### Debugging Tips\n├── ## Task Flow Visualization\n├── ## Estimated Effort\n└── ## Plan Completion Checklist"
+    },
+    "leaves": [
+      {
+        "id": "summary",
+        "title": "## Summary",
+        "depth": 2,
+        "startLine": 3,
+        "endLine": 13,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/summary.md",
+        "templateContent": "<!-- 2-3 sentences: What will be built, why it's needed, how it works -->\n\n**Goal:** [One sentence describing the core objective]\n\n**Architecture:** [2-3 sentences describing high-level approach]\n\n**Tech Stack:** [Key technologies, libraries, or patterns involved]",
+        "position": {
+          "path": [
+            "Summary"
+          ],
+          "siblings": [
+            "Codebase Analysis",
+            "Architecture Decisions",
+            "Task Breakdown",
+            "Files to Modify",
+            "Testing Strategy",
+            "Acceptance Criteria",
+            "Risks & Considerations",
+            "Implementation Notes",
+            "Task Flow Visualization",
+            "Estimated Effort",
+            "Plan Completion Checklist"
+          ],
+          "depth": 2
+        }
+      },
+      {
+        "id": "current-state",
+        "title": "### Current State",
+        "depth": 3,
+        "startLine": 15,
+        "endLine": 38,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/codebase-analysis/current-state.md",
+        "templateContent": "<!-- What exists NOW in the codebase -->\n\n**Relevant Files Found:**\n- `src/path/to/file.ts` - [What it does, why relevant]\n- `src/path/to/other.ts` - [What it does, why relevant]\n\n**Existing Patterns to Follow:**\n- `src/services/auth.ts:45-78` - Authentication flow pattern\n  - WHY: Shows JWT creation and refresh handling structure\n- `src/utils/validation.ts:sanitizeInput()` - Input sanitization pattern\n  - WHY: Must apply same sanitization approach for consistency\n\n**Similar Features:**\n- Feature X in `src/features/x/` - [How implemented, what to learn from it]\n- Pattern Y in `src/patterns/y.ts` - [How structured, what to reuse]\n\n**Testing Approach:**\n- Testing library: [Jest/Vitest/etc]\n- Test location: `src/**/*.test.ts` or `__tests__/`\n- Example pattern: `src/__tests__/auth.test.ts:describe(\"login\")` - [What pattern to follow]",
+        "position": {
+          "path": [
+            "Codebase Analysis",
+            "Current State"
+          ],
+          "siblings": [
+            "Key Findings"
+          ],
+          "parent": "Codebase Analysis",
+          "depth": 3
+        }
+      },
+      {
+        "id": "key-findings",
+        "title": "### Key Findings",
+        "depth": 3,
+        "startLine": 38,
+        "endLine": 62,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/codebase-analysis/key-findings.md",
+        "templateContent": "<!-- Important discoveries from exploration -->\n\n**File Structure:**\n- [Describe organization, where new files should go]\n\n**Dependencies:**\n- External: [npm packages used]\n- Internal: [modules that will be imported]\n\n**Code Conventions:**\n- Naming: [camelCase, PascalCase patterns]\n- File organization: [barrel exports, index files, etc]\n- Error handling: [How errors are thrown/caught, example: `src/errors/AppError.ts`]\n\n**Integration Points:**\n- [Where this feature connects to existing code]\n- [What interfaces/contracts must be maintained]\n\n**Existing Utilities to Reuse:**\n- `src/utils/logger.ts` - [How to use it]\n- `src/utils/config.ts` - [How to use it]",
+        "position": {
+          "path": [
+            "Codebase Analysis",
+            "Key Findings"
+          ],
+          "siblings": [
+            "Current State"
+          ],
+          "parent": "Codebase Analysis",
+          "depth": 3
+        }
+      },
+      {
+        "id": "chosen-approach-approach-name",
+        "title": "### Chosen Approach: [Approach Name]",
+        "depth": 3,
+        "startLine": 64,
+        "endLine": 87,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/architecture-decisions/chosen-approach-approach-name.md",
+        "templateContent": "<!-- Detailed description of chosen approach -->\n\n**How it works:**\n1. [Step 1 of architecture]\n2. [Step 2 of architecture]\n3. [Step 3 of architecture]\n\n**Why this approach:**\n- Follows pattern from `src/path/file.ts:lines` - [Specific pattern]\n- Consistent with existing [convention/pattern]\n- Reuses existing [utility/helper]\n- Simple and focused (avoids over-engineering)\n\n**Pattern References:**\n- `src/services/auth.ts:45-78` - Auth flow pattern (JWT creation, refresh)\n  - **Extract:** Token generation structure\n  - **Apply to:** Our new auth endpoint\n- `src/types/user.ts:UserDTO` - Response type pattern\n  - **Extract:** Response shape consistency\n  - **Apply to:** Our new API response",
+        "position": {
+          "path": [
+            "Architecture Decisions",
+            "Chosen Approach: [Approach Name]"
+          ],
+          "siblings": [
+            "Alternatives Considered",
+            "Test Strategy"
+          ],
+          "parent": "Architecture Decisions",
+          "depth": 3
+        }
+      },
+      {
+        "id": "alternatives-considered",
+        "title": "### Alternatives Considered",
+        "depth": 3,
+        "startLine": 87,
+        "endLine": 101,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/architecture-decisions/alternatives-considered.md",
+        "templateContent": "**Alternative 1: [Name]**\n- Description: [How it would work]\n- Pros: [Advantages]\n- Cons: [Disadvantages]\n- Not chosen because: [Specific reason with evidence]\n\n**Alternative 2: [Name]**\n- Description: [How it would work]\n- Pros: [Advantages]\n- Cons: [Disadvantages]\n- Not chosen because: [Specific reason with evidence]",
+        "position": {
+          "path": [
+            "Architecture Decisions",
+            "Alternatives Considered"
+          ],
+          "siblings": [
+            "Chosen Approach: [Approach Name]",
+            "Test Strategy"
+          ],
+          "parent": "Architecture Decisions",
+          "depth": 3
+        }
+      },
+      {
+        "id": "test-strategy",
+        "title": "### Test Strategy",
+        "depth": 3,
+        "startLine": 101,
+        "endLine": 107,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/architecture-decisions/test-strategy.md",
+        "templateContent": "**Chosen approach:** TDD (Red-Green-Refactor) / Tests After / Manual QA Only\n\n**Rationale:** [Why this testing approach for this feature]",
+        "position": {
+          "path": [
+            "Architecture Decisions",
+            "Test Strategy"
+          ],
+          "siblings": [
+            "Chosen Approach: [Approach Name]",
+            "Alternatives Considered"
+          ],
+          "parent": "Architecture Decisions",
+          "depth": 3
+        }
+      },
+      {
+        "id": "task-1-verb-what-in-specific-file",
+        "title": "#### Task 1: [Verb] [What] in [Specific File]",
+        "depth": 4,
+        "startLine": 113,
+        "endLine": 150,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/task-breakdown/phase-1-phase-name-e-g-type-definitions-infrastructure/task-1-verb-what-in-specific-file.md",
+        "templateContent": "**File:** `src/exact/path/to/file.ts` (Create / Modify)\n\n**Changes:**\n- Add/Modify: [Specific function, interface, or logic]\n- Code location: [Function name or around line X]\n- Code sample (if helpful):\n  ```typescript\n  // Follow pattern from src/example.ts:45\n  export interface ConfigType {\n    field1: string;\n    field2: number;\n  }\n  ```\n\n**Steps:**\n1. [Granular step 1 with exact details]\n2. [Granular step 2 with exact details]\n3. [Granular step 3 with exact details]\n4. [Commit changes with message: \"...\"]\n\n**Verification:**\n- [ ] Run: `npm run typecheck` (or specific command)\n- [ ] Expected: No type errors\n- [ ] Check: File exists at path and exports [specific items]\n\n**Dependencies:** None / Requires Task X\n\n**Parallelizable:** YES (with Task Y, Z) / NO\n\n**Estimated Time:** 2-5 minutes\n\n**Commit Message:** `feat: add ConfigType interface for [feature]`\n\n---",
+        "position": {
+          "path": [
+            "Task Breakdown",
+            "Phase 1: [Phase Name - e.g., \"Type Definitions & Infrastructure\"]",
+            "Task 1: [Verb] [What] in [Specific File]"
+          ],
+          "siblings": [
+            "Task 2: [Verb] [What] in [Specific File]"
+          ],
+          "parent": "Phase 1: [Phase Name - e.g., \"Type Definitions & Infrastructure\"]",
+          "depth": 4
+        }
+      },
+      {
+        "id": "task-2-verb-what-in-specific-file",
+        "title": "#### Task 2: [Verb] [What] in [Specific File]",
+        "depth": 4,
+        "startLine": 150,
+        "endLine": 180,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/task-breakdown/phase-1-phase-name-e-g-type-definitions-infrastructure/task-2-verb-what-in-specific-file.md",
+        "templateContent": "**File:** `src/exact/path/to/file.ts` (Create / Modify)\n\n**Changes:**\n- Add/Modify: [Specific function, interface, or logic]\n- Code location: [Function name or around line X]\n- Reference pattern: `src/reference/file.ts:123` - [What pattern to follow]\n\n**Steps:**\n1. [Granular step 1]\n2. [Granular step 2]\n3. [Granular step 3]\n4. [Commit]\n\n**Verification:**\n- [ ] Run: `node -c src/exact/path/to/file.ts` (syntax check)\n- [ ] Expected: No errors\n- [ ] Check: Function exports correctly\n\n**Dependencies:** Requires Task 1\n\n**Parallelizable:** NO (sequential after Task 1)\n\n**Estimated Time:** 3-5 minutes\n\n**Commit Message:** `feat: implement [function] for [feature]`\n\n---",
+        "position": {
+          "path": [
+            "Task Breakdown",
+            "Phase 1: [Phase Name - e.g., \"Type Definitions & Infrastructure\"]",
+            "Task 2: [Verb] [What] in [Specific File]"
+          ],
+          "siblings": [
+            "Task 1: [Verb] [What] in [Specific File]"
+          ],
+          "parent": "Phase 1: [Phase Name - e.g., \"Type Definitions & Infrastructure\"]",
+          "depth": 4
+        }
+      },
+      {
+        "id": "phase-2-phase-name-e-g-core-implementation",
+        "title": "### Phase 2: [Phase Name - e.g., \"Core Implementation\"]",
+        "depth": 3,
+        "startLine": 180,
+        "endLine": 186,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/task-breakdown/phase-2-phase-name-e-g-core-implementation.md",
+        "templateContent": "<!-- Continue with tasks for this phase -->\n\n---",
+        "position": {
+          "path": [
+            "Task Breakdown",
+            "Phase 2: [Phase Name - e.g., \"Core Implementation\"]"
+          ],
+          "siblings": [
+            "Phase 1: [Phase Name - e.g., \"Type Definitions & Infrastructure\"]",
+            "Phase 3: [Phase Name - e.g., \"Testing\"]",
+            "Phase 4: [Phase Name - e.g., \"Integration & Verification\"]"
+          ],
+          "parent": "Task Breakdown",
+          "depth": 3
+        }
+      },
+      {
+        "id": "phase-3-phase-name-e-g-testing",
+        "title": "### Phase 3: [Phase Name - e.g., \"Testing\"]",
+        "depth": 3,
+        "startLine": 186,
+        "endLine": 192,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/task-breakdown/phase-3-phase-name-e-g-testing.md",
+        "templateContent": "<!-- All test-related tasks -->\n\n---",
+        "position": {
+          "path": [
+            "Task Breakdown",
+            "Phase 3: [Phase Name - e.g., \"Testing\"]"
+          ],
+          "siblings": [
+            "Phase 1: [Phase Name - e.g., \"Type Definitions & Infrastructure\"]",
+            "Phase 2: [Phase Name - e.g., \"Core Implementation\"]",
+            "Phase 4: [Phase Name - e.g., \"Integration & Verification\"]"
+          ],
+          "parent": "Task Breakdown",
+          "depth": 3
+        }
+      },
+      {
+        "id": "phase-4-phase-name-e-g-integration-verification",
+        "title": "### Phase 4: [Phase Name - e.g., \"Integration & Verification\"]",
+        "depth": 3,
+        "startLine": 192,
+        "endLine": 196,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/task-breakdown/phase-4-phase-name-e-g-integration-verification.md",
+        "templateContent": "<!-- Integration and final verification tasks -->",
+        "position": {
+          "path": [
+            "Task Breakdown",
+            "Phase 4: [Phase Name - e.g., \"Integration & Verification\"]"
+          ],
+          "siblings": [
+            "Phase 1: [Phase Name - e.g., \"Type Definitions & Infrastructure\"]",
+            "Phase 2: [Phase Name - e.g., \"Core Implementation\"]",
+            "Phase 3: [Phase Name - e.g., \"Testing\"]"
+          ],
+          "parent": "Task Breakdown",
+          "depth": 3
+        }
+      },
+      {
+        "id": "files-to-modify",
+        "title": "## Files to Modify",
+        "depth": 2,
+        "startLine": 196,
+        "endLine": 206,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/files-to-modify.md",
+        "templateContent": "| File | Action | Description | Phase | Task # |\n|------|--------|-------------|-------|---------|\n| `src/types/config.ts` | Create | Type definitions for config | 1 | 1 |\n| `src/utils/helper.ts` | Modify | Add new helper function | 2 | 3, 4 |\n| `src/services/api.ts` | Modify | Integrate new endpoint | 2 | 5 |\n| `src/__tests__/helper.test.ts` | Create | Unit tests for helper | 3 | 6 |\n| `src/__tests__/api.test.ts` | Modify | Integration tests | 3 | 7 |",
+        "position": {
+          "path": [
+            "Files to Modify"
+          ],
+          "siblings": [
+            "Summary",
+            "Codebase Analysis",
+            "Architecture Decisions",
+            "Task Breakdown",
+            "Testing Strategy",
+            "Acceptance Criteria",
+            "Risks & Considerations",
+            "Implementation Notes",
+            "Task Flow Visualization",
+            "Estimated Effort",
+            "Plan Completion Checklist"
+          ],
+          "depth": 2
+        }
+      },
+      {
+        "id": "test-approach",
+        "title": "### Test Approach",
+        "depth": 3,
+        "startLine": 208,
+        "endLine": 214,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/testing-strategy/test-approach.md",
+        "templateContent": "**Strategy:** TDD (Red-Green-Refactor) / Tests After / Manual QA Only\n\n**Rationale:** [Why this approach for this feature]",
+        "position": {
+          "path": [
+            "Testing Strategy",
+            "Test Approach"
+          ],
+          "siblings": [
+            "Unit Tests",
+            "Integration Tests",
+            "Manual Verification"
+          ],
+          "parent": "Testing Strategy",
+          "depth": 3
+        }
+      },
+      {
+        "id": "unit-tests",
+        "title": "### Unit Tests",
+        "depth": 3,
+        "startLine": 214,
+        "endLine": 250,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/testing-strategy/unit-tests.md",
+        "templateContent": "**Test file:** `src/**/*.test.ts` or `src/**/*.spec.ts` (follow existing convention)\n\n**Testing library:** [Jest/Vitest/etc - based on existing patterns]\n\n**Reference pattern:** `src/__tests__/auth.test.ts:describe(\"login\")` - Follow this structure\n\n**Test cases to implement:**\n\n**Happy Path:**\n- [ ] Test Case 1: [Specific scenario] - Expected: [Specific result]\n- [ ] Test Case 2: [Specific scenario] - Expected: [Specific result]\n\n**Edge Cases:**\n- [ ] Edge Case 1: [Empty input] - Expected: [How handled]\n- [ ] Edge Case 2: [Boundary value] - Expected: [How handled]\n- [ ] Edge Case 3: [Maximum value] - Expected: [How handled]\n\n**Error Cases:**\n- [ ] Error Case 1: [Invalid input] - Expected: [Error thrown/returned]\n- [ ] Error Case 2: [Missing data] - Expected: [Error thrown/returned]\n- [ ] Error Case 3: [Network failure] - Expected: [Error thrown/returned]\n\n**Verification Commands:**\n```bash\n# Run specific test file\nnpm test src/__tests__/helper.test.ts\n\n# Run all tests\nnpm test\n\n# Run with coverage\nnpm test -- --coverage\n```",
+        "position": {
+          "path": [
+            "Testing Strategy",
+            "Unit Tests"
+          ],
+          "siblings": [
+            "Test Approach",
+            "Integration Tests",
+            "Manual Verification"
+          ],
+          "parent": "Testing Strategy",
+          "depth": 3
+        }
+      },
+      {
+        "id": "integration-tests",
+        "title": "### Integration Tests",
+        "depth": 3,
+        "startLine": 250,
+        "endLine": 260,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/testing-strategy/integration-tests.md",
+        "templateContent": "**Integration scenarios:**\n- [ ] Scenario 1: [Feature X integrates with Y]\n  - Command: `npm test -- integration`\n  - Expected: [Specific outcome]\n- [ ] Scenario 2: [End-to-end flow]\n  - Command: [Specific command]\n  - Expected: [Specific outcome]",
+        "position": {
+          "path": [
+            "Testing Strategy",
+            "Integration Tests"
+          ],
+          "siblings": [
+            "Test Approach",
+            "Unit Tests",
+            "Manual Verification"
+          ],
+          "parent": "Testing Strategy",
+          "depth": 3
+        }
+      },
+      {
+        "id": "manual-verification",
+        "title": "### Manual Verification",
+        "depth": 3,
+        "startLine": 260,
+        "endLine": 277,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/testing-strategy/manual-verification.md",
+        "templateContent": "**Manual testing checklist:**\n- [ ] Start application: `npm run dev`\n- [ ] Navigate to [specific URL/page]\n- [ ] Perform action: [Specific user action]\n- [ ] Verify: [Specific expected outcome]\n- [ ] Check console: No errors or warnings\n- [ ] Check network tab: [Expected requests/responses]\n\n**Environment:** Development / Staging / Production\n\n**Browser compatibility (if applicable):**\n- [ ] Chrome\n- [ ] Firefox\n- [ ] Safari",
+        "position": {
+          "path": [
+            "Testing Strategy",
+            "Manual Verification"
+          ],
+          "siblings": [
+            "Test Approach",
+            "Unit Tests",
+            "Integration Tests"
+          ],
+          "parent": "Testing Strategy",
+          "depth": 3
+        }
+      },
+      {
+        "id": "implementation-complete",
+        "title": "### Implementation Complete",
+        "depth": 3,
+        "startLine": 281,
+        "endLine": 287,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/acceptance-criteria/implementation-complete.md",
+        "templateContent": "- [ ] All tasks in all phases completed as specified\n- [ ] All files created/modified as planned\n- [ ] All verification commands pass\n- [ ] Code committed with proper messages",
+        "position": {
+          "path": [
+            "Acceptance Criteria",
+            "Implementation Complete"
+          ],
+          "siblings": [
+            "Tests Passing",
+            "Code Quality",
+            "Functionality",
+            "Non-Regression"
+          ],
+          "parent": "Acceptance Criteria",
+          "depth": 3
+        }
+      },
+      {
+        "id": "tests-passing",
+        "title": "### Tests Passing",
+        "depth": 3,
+        "startLine": 287,
+        "endLine": 293,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/acceptance-criteria/tests-passing.md",
+        "templateContent": "- [ ] All unit tests passing: `npm test`\n- [ ] All integration tests passing: `npm test -- integration`\n- [ ] Test coverage ≥ [X%] for new code: `npm test -- --coverage`\n- [ ] No flaky tests (all tests pass consistently)",
+        "position": {
+          "path": [
+            "Acceptance Criteria",
+            "Tests Passing"
+          ],
+          "siblings": [
+            "Implementation Complete",
+            "Code Quality",
+            "Functionality",
+            "Non-Regression"
+          ],
+          "parent": "Acceptance Criteria",
+          "depth": 3
+        }
+      },
+      {
+        "id": "code-quality",
+        "title": "### Code Quality",
+        "depth": 3,
+        "startLine": 293,
+        "endLine": 301,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/acceptance-criteria/code-quality.md",
+        "templateContent": "- [ ] No linting errors: `npm run lint`\n- [ ] No type errors: `npm run typecheck`\n- [ ] Build succeeds: `npm run build`\n- [ ] Code follows existing patterns (matches reference files)\n- [ ] No commented-out code\n- [ ] No debug console.logs",
+        "position": {
+          "path": [
+            "Acceptance Criteria",
+            "Code Quality"
+          ],
+          "siblings": [
+            "Implementation Complete",
+            "Tests Passing",
+            "Functionality",
+            "Non-Regression"
+          ],
+          "parent": "Acceptance Criteria",
+          "depth": 3
+        }
+      },
+      {
+        "id": "functionality",
+        "title": "### Functionality",
+        "depth": 3,
+        "startLine": 301,
+        "endLine": 308,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/acceptance-criteria/functionality.md",
+        "templateContent": "- [ ] Manual verification checklist complete\n- [ ] Happy path works as expected\n- [ ] Edge cases handled appropriately\n- [ ] Error cases show proper error messages\n- [ ] No console errors or warnings",
+        "position": {
+          "path": [
+            "Acceptance Criteria",
+            "Functionality"
+          ],
+          "siblings": [
+            "Implementation Complete",
+            "Tests Passing",
+            "Code Quality",
+            "Non-Regression"
+          ],
+          "parent": "Acceptance Criteria",
+          "depth": 3
+        }
+      },
+      {
+        "id": "non-regression",
+        "title": "### Non-Regression",
+        "depth": 3,
+        "startLine": 308,
+        "endLine": 315,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/acceptance-criteria/non-regression.md",
+        "templateContent": "- [ ] Existing tests still pass\n- [ ] No breaking changes to public APIs\n- [ ] Existing features unaffected\n\n**Status:** ✅ All criteria must be checked before considering feature complete",
+        "position": {
+          "path": [
+            "Acceptance Criteria",
+            "Non-Regression"
+          ],
+          "siblings": [
+            "Implementation Complete",
+            "Tests Passing",
+            "Code Quality",
+            "Functionality"
+          ],
+          "parent": "Acceptance Criteria",
+          "depth": 3
+        }
+      },
+      {
+        "id": "technical-risks",
+        "title": "### Technical Risks",
+        "depth": 3,
+        "startLine": 317,
+        "endLine": 329,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/risks-considerations/technical-risks.md",
+        "templateContent": "- **Risk 1**: [Specific technical risk]\n  - **Impact:** [What could go wrong]\n  - **Mitigation:** [Concrete steps to prevent/handle]\n  - **Contingency:** [Backup plan if mitigation fails]\n\n- **Risk 2**: [Specific technical risk]\n  - **Impact:** [What could go wrong]\n  - **Mitigation:** [Concrete steps to prevent/handle]\n  - **Contingency:** [Backup plan if mitigation fails]",
+        "position": {
+          "path": [
+            "Risks & Considerations",
+            "Technical Risks"
+          ],
+          "siblings": [
+            "Edge Cases",
+            "Dependencies",
+            "Performance Considerations"
+          ],
+          "parent": "Risks & Considerations",
+          "depth": 3
+        }
+      },
+      {
+        "id": "edge-cases",
+        "title": "### Edge Cases",
+        "depth": 3,
+        "startLine": 329,
+        "endLine": 346,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/risks-considerations/edge-cases.md",
+        "templateContent": "- **Empty/Null Input**\n  - Scenario: [When this happens]\n  - Handling: [How code handles it]\n  - Test coverage: Task #[X]\n\n- **Boundary Values**\n  - Scenario: [Min/max values, array boundaries]\n  - Handling: [How code handles it]\n  - Test coverage: Task #[X]\n\n- **Race Conditions (if applicable)**\n  - Scenario: [Concurrent access/updates]\n  - Handling: [Locking, atomicity approach]\n  - Test coverage: Task #[X]",
+        "position": {
+          "path": [
+            "Risks & Considerations",
+            "Edge Cases"
+          ],
+          "siblings": [
+            "Technical Risks",
+            "Dependencies",
+            "Performance Considerations"
+          ],
+          "parent": "Risks & Considerations",
+          "depth": 3
+        }
+      },
+      {
+        "id": "dependencies",
+        "title": "### Dependencies",
+        "depth": 3,
+        "startLine": 346,
+        "endLine": 363,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/risks-considerations/dependencies.md",
+        "templateContent": "**External Dependencies:**\n- Package: `[package-name]` (version [X.Y.Z])\n  - Purpose: [What it's used for]\n  - Impact: [What breaks if it fails]\n\n**Internal Dependencies:**\n- Module: `src/path/to/module.ts`\n  - Purpose: [What it provides]\n  - Impact: Changes require Task #[X] update\n\n**Breaking Changes:**\n- None / [Specific breaking changes]\n- Migration path: [How to update existing code]\n- Affected code: [Files/modules that need updates]",
+        "position": {
+          "path": [
+            "Risks & Considerations",
+            "Dependencies"
+          ],
+          "siblings": [
+            "Technical Risks",
+            "Edge Cases",
+            "Performance Considerations"
+          ],
+          "parent": "Risks & Considerations",
+          "depth": 3
+        }
+      },
+      {
+        "id": "performance-considerations",
+        "title": "### Performance Considerations",
+        "depth": 3,
+        "startLine": 363,
+        "endLine": 372,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/risks-considerations/performance-considerations.md",
+        "templateContent": "- **Performance Impact:** Low / Medium / High\n- **Specific concerns:**\n  - [Concern 1: e.g., \"Large array iteration\"]\n    - Mitigation: [e.g., \"Use pagination\"]\n  - [Concern 2: e.g., \"Expensive computation\"]\n    - Mitigation: [e.g., \"Cache results\"]",
+        "position": {
+          "path": [
+            "Risks & Considerations",
+            "Performance Considerations"
+          ],
+          "siblings": [
+            "Technical Risks",
+            "Edge Cases",
+            "Dependencies"
+          ],
+          "parent": "Risks & Considerations",
+          "depth": 3
+        }
+      },
+      {
+        "id": "code-patterns-to-follow",
+        "title": "### Code Patterns to Follow",
+        "depth": 3,
+        "startLine": 376,
+        "endLine": 396,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/implementation-notes/code-patterns-to-follow.md",
+        "templateContent": "**Pattern 1: [Pattern name]**\n```typescript\n// Reference: src/example/file.ts:45-67\n// Use this pattern for [specific case]\n\nexport function example(param: Type): ReturnType {\n  // Follow this structure\n  const result = processData(param);\n  return result;\n}\n```\n\n**Pattern 2: [Pattern name]**\n```typescript\n// Reference: src/other/file.ts:123-145\n// Use this pattern for [specific case]\n```",
+        "position": {
+          "path": [
+            "Implementation Notes",
+            "Code Patterns to Follow"
+          ],
+          "siblings": [
+            "Gotchas & Pitfalls",
+            "Common Mistakes to Avoid",
+            "Debugging Tips"
+          ],
+          "parent": "Implementation Notes",
+          "depth": 3
+        }
+      },
+      {
+        "id": "gotchas-pitfalls",
+        "title": "### Gotchas & Pitfalls",
+        "depth": 3,
+        "startLine": 396,
+        "endLine": 406,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/implementation-notes/gotchas-pitfalls.md",
+        "templateContent": "- **Gotcha 1**: [Specific thing to watch out for]\n  - Why it matters: [Consequence if ignored]\n  - How to avoid: [Specific action]\n\n- **Gotcha 2**: [Specific thing to watch out for]\n  - Why it matters: [Consequence if ignored]\n  - How to avoid: [Specific action]",
+        "position": {
+          "path": [
+            "Implementation Notes",
+            "Gotchas & Pitfalls"
+          ],
+          "siblings": [
+            "Code Patterns to Follow",
+            "Common Mistakes to Avoid",
+            "Debugging Tips"
+          ],
+          "parent": "Implementation Notes",
+          "depth": 3
+        }
+      },
+      {
+        "id": "common-mistakes-to-avoid",
+        "title": "### Common Mistakes to Avoid",
+        "depth": 3,
+        "startLine": 406,
+        "endLine": 412,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/implementation-notes/common-mistakes-to-avoid.md",
+        "templateContent": "- ❌ Don't [specific anti-pattern] - [Why it's wrong]\n- ❌ Don't [specific anti-pattern] - [Why it's wrong]\n- ✅ Do [correct pattern] - [Why it's right]",
+        "position": {
+          "path": [
+            "Implementation Notes",
+            "Common Mistakes to Avoid"
+          ],
+          "siblings": [
+            "Code Patterns to Follow",
+            "Gotchas & Pitfalls",
+            "Debugging Tips"
+          ],
+          "parent": "Implementation Notes",
+          "depth": 3
+        }
+      },
+      {
+        "id": "debugging-tips",
+        "title": "### Debugging Tips",
+        "depth": 3,
+        "startLine": 412,
+        "endLine": 419,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/implementation-notes/debugging-tips.md",
+        "templateContent": "- If [specific problem], check [specific location/log]\n- If tests fail with [specific error], likely cause is [root cause]\n\n---",
+        "position": {
+          "path": [
+            "Implementation Notes",
+            "Debugging Tips"
+          ],
+          "siblings": [
+            "Code Patterns to Follow",
+            "Gotchas & Pitfalls",
+            "Common Mistakes to Avoid"
+          ],
+          "parent": "Implementation Notes",
+          "depth": 3
+        }
+      },
+      {
+        "id": "task-flow-visualization",
+        "title": "## Task Flow Visualization",
+        "depth": 2,
+        "startLine": 419,
+        "endLine": 440,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/task-flow-visualization.md",
+        "templateContent": "```\nPhase 1 (Infrastructure)\n  Task 1 → Task 2\n           ↓\n  Task 3 (parallel with 4)\n  Task 4 (parallel with 3)\n\nPhase 2 (Implementation)\n  Task 5 (depends on 2, 3, 4)\n           ↓\n  Task 6 → Task 7\n\nPhase 3 (Testing)\n  Task 8 → Task 9 → Task 10\n\nPhase 4 (Verification)\n  Task 11 (depends on all previous)\n```",
+        "position": {
+          "path": [
+            "Task Flow Visualization"
+          ],
+          "siblings": [
+            "Summary",
+            "Codebase Analysis",
+            "Architecture Decisions",
+            "Task Breakdown",
+            "Files to Modify",
+            "Testing Strategy",
+            "Acceptance Criteria",
+            "Risks & Considerations",
+            "Implementation Notes",
+            "Estimated Effort",
+            "Plan Completion Checklist"
+          ],
+          "depth": 2
+        }
+      },
+      {
+        "id": "estimated-effort",
+        "title": "## Estimated Effort",
+        "depth": 2,
+        "startLine": 440,
+        "endLine": 450,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/estimated-effort.md",
+        "templateContent": "- **Total phases:** [X]\n- **Total tasks:** [Y]\n- **Estimated time:** [Z minutes] (sum of all task estimates)\n- **Complexity:** Low / Medium / High\n- **Parallelization opportunities:** [X tasks can run in parallel]\n\n---",
+        "position": {
+          "path": [
+            "Estimated Effort"
+          ],
+          "siblings": [
+            "Summary",
+            "Codebase Analysis",
+            "Architecture Decisions",
+            "Task Breakdown",
+            "Files to Modify",
+            "Testing Strategy",
+            "Acceptance Criteria",
+            "Risks & Considerations",
+            "Implementation Notes",
+            "Task Flow Visualization",
+            "Plan Completion Checklist"
+          ],
+          "depth": 2
+        }
+      },
+      {
+        "id": "plan-completion-checklist",
+        "title": "## Plan Completion Checklist",
+        "depth": 2,
+        "startLine": 450,
+        "endLine": 462,
+        "children": [],
+        "isLeaf": true,
+        "outputPath": "sections/01-plan/plan-completion-checklist.md",
+        "templateContent": "Before submitting this plan, verify:\n- [ ] ALL tasks are 2-5 minutes with exact file paths\n- [ ] ≥80% of tasks reference specific existing code (file:line)\n- [ ] EVERY task has concrete verification (command + expected output)\n- [ ] Zero assumptions about business logic or patterns\n- [ ] Test strategy decided and documented\n- [ ] Dependencies and parallelization marked\n- [ ] Phase organization logical and complete\n- [ ] One complete plan (not split into multiple phases to plan later)",
+        "position": {
+          "path": [
+            "Plan Completion Checklist"
+          ],
+          "siblings": [
+            "Summary",
+            "Codebase Analysis",
+            "Architecture Decisions",
+            "Task Breakdown",
+            "Files to Modify",
+            "Testing Strategy",
+            "Acceptance Criteria",
+            "Risks & Considerations",
+            "Implementation Notes",
+            "Task Flow Visualization",
+            "Estimated Effort"
+          ],
+          "depth": 2
+        }
+      }
+    ],
+    "consolidateLevels": [
+      {
+        "depth": 4,
+        "groups": [
+          {
+            "parentId": "phase-1-phase-name-e-g-type-definitions-infrastructure",
+            "childIds": [
+              "task-1-verb-what-in-specific-file",
+              "task-2-verb-what-in-specific-file"
+            ],
+            "outputPath": "sections/01-plan/task-breakdown/phase-1-phase-name-e-g-type-definitions-infrastructure.md"
+          }
+        ]
+      },
+      {
+        "depth": 3,
+        "groups": [
+          {
+            "parentId": "codebase-analysis",
+            "childIds": [
+              "current-state",
+              "key-findings"
+            ],
+            "outputPath": "sections/01-plan/codebase-analysis.md"
+          },
+          {
+            "parentId": "architecture-decisions",
+            "childIds": [
+              "chosen-approach-approach-name",
+              "alternatives-considered",
+              "test-strategy"
+            ],
+            "outputPath": "sections/01-plan/architecture-decisions.md"
+          },
+          {
+            "parentId": "task-breakdown",
+            "childIds": [
+              "phase-1-phase-name-e-g-type-definitions-infrastructure",
+              "phase-2-phase-name-e-g-core-implementation",
+              "phase-3-phase-name-e-g-testing",
+              "phase-4-phase-name-e-g-integration-verification"
+            ],
+            "outputPath": "sections/01-plan/task-breakdown.md"
+          },
+          {
+            "parentId": "testing-strategy",
+            "childIds": [
+              "test-approach",
+              "unit-tests",
+              "integration-tests",
+              "manual-verification"
+            ],
+            "outputPath": "sections/01-plan/testing-strategy.md"
+          },
+          {
+            "parentId": "acceptance-criteria",
+            "childIds": [
+              "implementation-complete",
+              "tests-passing",
+              "code-quality",
+              "functionality",
+              "non-regression"
+            ],
+            "outputPath": "sections/01-plan/acceptance-criteria.md"
+          },
+          {
+            "parentId": "risks-considerations",
+            "childIds": [
+              "technical-risks",
+              "edge-cases",
+              "dependencies",
+              "performance-considerations"
+            ],
+            "outputPath": "sections/01-plan/risks-considerations.md"
+          },
+          {
+            "parentId": "implementation-notes",
+            "childIds": [
+              "code-patterns-to-follow",
+              "gotchas-pitfalls",
+              "common-mistakes-to-avoid",
+              "debugging-tips"
+            ],
+            "outputPath": "sections/01-plan/implementation-notes.md"
+          }
+        ]
+      },
+      {
+        "depth": 2,
+        "groups": [
+          {
+            "parentId": "root",
+            "childIds": [
+              "summary",
+              "codebase-analysis",
+              "architecture-decisions",
+              "task-breakdown",
+              "files-to-modify",
+              "testing-strategy",
+              "acceptance-criteria",
+              "risks-considerations",
+              "implementation-notes",
+              "task-flow-visualization",
+              "estimated-effort",
+              "plan-completion-checklist"
+            ],
+            "outputPath": "sections/01-plan/_root.md"
+          }
+        ]
+      }
+    ],
+    "rootOutputPath": "sections/01-plan/_root.md"
+  },
+  "sectionStatuses": [
+    {
+      "id": "summary",
+      "status": "pending",
+      "outputPath": "sections/01-plan/summary.md"
+    },
+    {
+      "id": "current-state",
+      "status": "pending",
+      "outputPath": "sections/01-plan/codebase-analysis/current-state.md"
+    },
+    {
+      "id": "key-findings",
+      "status": "pending",
+      "outputPath": "sections/01-plan/codebase-analysis/key-findings.md"
+    },
+    {
+      "id": "chosen-approach-approach-name",
+      "status": "pending",
+      "outputPath": "sections/01-plan/architecture-decisions/chosen-approach-approach-name.md"
+    },
+    {
+      "id": "alternatives-considered",
+      "status": "pending",
+      "outputPath": "sections/01-plan/architecture-decisions/alternatives-considered.md"
+    },
+    {
+      "id": "test-strategy",
+      "status": "pending",
+      "outputPath": "sections/01-plan/architecture-decisions/test-strategy.md"
+    },
+    {
+      "id": "task-1-verb-what-in-specific-file",
+      "status": "pending",
+      "outputPath": "sections/01-plan/task-breakdown/phase-1-phase-name-e-g-type-definitions-infrastructure/task-1-verb-what-in-specific-file.md"
+    },
+    {
+      "id": "task-2-verb-what-in-specific-file",
+      "status": "pending",
+      "outputPath": "sections/01-plan/task-breakdown/phase-1-phase-name-e-g-type-definitions-infrastructure/task-2-verb-what-in-specific-file.md"
+    },
+    {
+      "id": "phase-2-phase-name-e-g-core-implementation",
+      "status": "pending",
+      "outputPath": "sections/01-plan/task-breakdown/phase-2-phase-name-e-g-core-implementation.md"
+    },
+    {
+      "id": "phase-3-phase-name-e-g-testing",
+      "status": "pending",
+      "outputPath": "sections/01-plan/task-breakdown/phase-3-phase-name-e-g-testing.md"
+    },
+    {
+      "id": "phase-4-phase-name-e-g-integration-verification",
+      "status": "pending",
+      "outputPath": "sections/01-plan/task-breakdown/phase-4-phase-name-e-g-integration-verification.md"
+    },
+    {
+      "id": "files-to-modify",
+      "status": "pending",
+      "outputPath": "sections/01-plan/files-to-modify.md"
+    },
+    {
+      "id": "test-approach",
+      "status": "pending",
+      "outputPath": "sections/01-plan/testing-strategy/test-approach.md"
+    },
+    {
+      "id": "unit-tests",
+      "status": "pending",
+      "outputPath": "sections/01-plan/testing-strategy/unit-tests.md"
+    },
+    {
+      "id": "integration-tests",
+      "status": "pending",
+      "outputPath": "sections/01-plan/testing-strategy/integration-tests.md"
+    },
+    {
+      "id": "manual-verification",
+      "status": "pending",
+      "outputPath": "sections/01-plan/testing-strategy/manual-verification.md"
+    },
+    {
+      "id": "implementation-complete",
+      "status": "pending",
+      "outputPath": "sections/01-plan/acceptance-criteria/implementation-complete.md"
+    },
+    {
+      "id": "tests-passing",
+      "status": "pending",
+      "outputPath": "sections/01-plan/acceptance-criteria/tests-passing.md"
+    },
+    {
+      "id": "code-quality",
+      "status": "pending",
+      "outputPath": "sections/01-plan/acceptance-criteria/code-quality.md"
+    },
+    {
+      "id": "functionality",
+      "status": "pending",
+      "outputPath": "sections/01-plan/acceptance-criteria/functionality.md"
+    },
+    {
+      "id": "non-regression",
+      "status": "pending",
+      "outputPath": "sections/01-plan/acceptance-criteria/non-regression.md"
+    },
+    {
+      "id": "technical-risks",
+      "status": "pending",
+      "outputPath": "sections/01-plan/risks-considerations/technical-risks.md"
+    },
+    {
+      "id": "edge-cases",
+      "status": "pending",
+      "outputPath": "sections/01-plan/risks-considerations/edge-cases.md"
+    },
+    {
+      "id": "dependencies",
+      "status": "pending",
+      "outputPath": "sections/01-plan/risks-considerations/dependencies.md"
+    },
+    {
+      "id": "performance-considerations",
+      "status": "pending",
+      "outputPath": "sections/01-plan/risks-considerations/performance-considerations.md"
+    },
+    {
+      "id": "code-patterns-to-follow",
+      "status": "pending",
+      "outputPath": "sections/01-plan/implementation-notes/code-patterns-to-follow.md"
+    },
+    {
+      "id": "gotchas-pitfalls",
+      "status": "pending",
+      "outputPath": "sections/01-plan/implementation-notes/gotchas-pitfalls.md"
+    },
+    {
+      "id": "common-mistakes-to-avoid",
+      "status": "pending",
+      "outputPath": "sections/01-plan/implementation-notes/common-mistakes-to-avoid.md"
+    },
+    {
+      "id": "debugging-tips",
+      "status": "pending",
+      "outputPath": "sections/01-plan/implementation-notes/debugging-tips.md"
+    },
+    {
+      "id": "task-flow-visualization",
+      "status": "pending",
+      "outputPath": "sections/01-plan/task-flow-visualization.md"
+    },
+    {
+      "id": "estimated-effort",
+      "status": "pending",
+      "outputPath": "sections/01-plan/estimated-effort.md"
+    },
+    {
+      "id": "plan-completion-checklist",
+      "status": "pending",
+      "outputPath": "sections/01-plan/plan-completion-checklist.md"
+    }
+  ],
+  "consolidateProgress": {
+    "currentLevel": 0,
+    "completedLevels": [],
+    "totalLevels": 3
+  }
+}

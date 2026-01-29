@@ -1,0 +1,11 @@
+{
+  "taskId": "2026-01-27-build-a-fi-ekfv",
+  "description": "Build a file viewer app that opens any markdown file from finder or link from the terminal. It should be able to open above existing full screen apps (overlay mode). When opening markdown files, it should be like Notion where you can read in prettified view and also be able to edit markdown syntax.",
+  "currentStep": "02-implement",
+  "stepIndex": 2,
+  "totalSteps": 2,
+  "status": "completed",
+  "phase": "review",
+  "createdAt": "2026-01-27T11:35:10.964Z",
+  "updatedAt": "2026-01-27T12:13:48.245Z"
+}
