@@ -114,6 +114,25 @@ function getFileType(path: string): "markdown" | "code" {
   return "code";
 }
 
+// Helper function to extract text from BlockNote blocks (defined outside component to avoid recreation)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function extractTextFromBlock(block: any): string {
+  let text = "";
+  if (block.content && Array.isArray(block.content)) {
+    for (const inline of block.content) {
+      if (typeof inline === "object" && "text" in inline) {
+        text += inline.text;
+      }
+    }
+  }
+  if (block.children) {
+    for (const child of block.children) {
+      text += extractTextFromBlock(child);
+    }
+  }
+  return text + "\n";
+}
+
 function getLanguageExtension(filename: string): Extension {
   const ext = filename.split(".").pop()?.toLowerCase() || "";
   switch (ext) {
@@ -461,25 +480,8 @@ function App() {
       // BlockNote search - get text content and count matches
       const blocks = editor.document;
       let totalText = "";
-      const extractText = (block: typeof blocks[0]): string => {
-        let text = "";
-        if (block.content && Array.isArray(block.content)) {
-          for (const inline of block.content) {
-            if (typeof inline === "object" && "text" in inline) {
-              text += inline.text;
-            }
-          }
-        }
-        if (block.children) {
-          for (const child of block.children) {
-            text += extractText(child);
-          }
-        }
-        return text + "\n";
-      };
-
       for (const block of blocks) {
-        totalText += extractText(block);
+        totalText += extractTextFromBlock(block);
       }
 
       const regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi");
@@ -493,43 +495,47 @@ function App() {
   const navigateSearch = useCallback((direction: "next" | "prev") => {
     if (searchMatchCount === 0) return;
 
+    // CodeMirror-specific navigation
     if (fileType === "code" && cmViewRef.current) {
       if (direction === "next") {
         findNext(cmViewRef.current);
-        setCurrentMatchIndex(prev => prev >= searchMatchCount ? 1 : prev + 1);
       } else {
         findPrevious(cmViewRef.current);
-        setCurrentMatchIndex(prev => prev <= 1 ? searchMatchCount : prev - 1);
       }
-    } else if (fileType === "markdown") {
-      // For markdown, just update the index (visual feedback)
-      if (direction === "next") {
-        setCurrentMatchIndex(prev => prev >= searchMatchCount ? 1 : prev + 1);
-      } else {
-        setCurrentMatchIndex(prev => prev <= 1 ? searchMatchCount : prev - 1);
-      }
+    }
+
+    // Update index for visual feedback (applies to both editor types)
+    if (direction === "next") {
+      setCurrentMatchIndex(prev => prev >= searchMatchCount ? 1 : prev + 1);
+    } else {
+      setCurrentMatchIndex(prev => prev <= 1 ? searchMatchCount : prev - 1);
     }
   }, [fileType, searchMatchCount]);
 
   const toggleSearch = useCallback(() => {
     setShowSearch(prev => {
-      const newValue = !prev;
-      if (newValue) {
-        setTimeout(() => searchInputRef.current?.focus(), 0);
-      } else {
+      const willShow = !prev;
+      if (!willShow) {
+        // Cleanup when hiding search
         setSearchQueryState("");
         setSearchMatchCount(0);
         setCurrentMatchIndex(0);
-        // Clear CodeMirror search
         if (fileType === "code" && cmViewRef.current) {
           cmViewRef.current.dispatch({
             effects: setSearchQuery.of(new SearchQuery({ search: "" }))
           });
         }
       }
-      return newValue;
+      return willShow;
     });
   }, [fileType]);
+
+  // Focus search input when search bar opens
+  useEffect(() => {
+    if (showSearch) {
+      searchInputRef.current?.focus();
+    }
+  }, [showSearch]);
 
   // Keyboard shortcuts
   useEffect(() => {
