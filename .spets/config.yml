@@ -11,8 +11,8 @@ output:
 
 # GitHub integration (auto-detected from git remote)
 github:
-  owner: eatnug
-  repo: JustViewer
+  owner: team-attention
+  repo: nobs-editor-dev
 
 # Optional hooks (shell scripts)
 # hooks:
