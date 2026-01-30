@@ -29,8 +29,19 @@ import { StreamLanguage } from "@codemirror/language";
 import { shell } from "@codemirror/legacy-modes/mode/shell";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { highlightSelectionMatches, SearchQuery, search, findNext, findPrevious, setSearchQuery, getSearchQuery } from "@codemirror/search";
+import { Plugin, PluginKey, TextSelection } from "@tiptap/pm/state";
+import { Decoration, DecorationSet } from "@tiptap/pm/view";
 
 import "./styles.css";
+
+// Search highlight plugin key for ProseMirror
+const searchHighlightPluginKey = new PluginKey("searchHighlight");
+
+// Interface for match position data (for scrollbar overlay)
+interface MatchPosition {
+  position: number;  // Character position in document
+  linePercent: number;  // Percentage position (0-100) for scrollbar overlay
+}
 
 // Frontmatter parsing utilities
 interface FrontmatterData {
@@ -176,6 +187,29 @@ function StyleControl({ label, value, onChange, min = 10, max = 72 }: StyleContr
   );
 }
 
+// Scrollbar overlay component to show match positions
+interface SearchMatchOverlayProps {
+  positions: MatchPosition[];
+  currentIndex: number;
+}
+
+function SearchMatchOverlay({ positions, currentIndex }: SearchMatchOverlayProps) {
+  if (positions.length === 0) return null;
+
+  return (
+    <div className="search-match-overlay">
+      {positions.map((pos, idx) => (
+        <div
+          key={idx}
+          className={`search-match-marker ${idx === currentIndex - 1 ? "current" : ""}`}
+          style={{ top: `${pos.linePercent}%` }}
+          title={`Match ${idx + 1}`}
+        />
+      ))}
+    </div>
+  );
+}
+
 function App() {
   const [filename, setFilename] = useState("No file opened");
   const [currentFilePath, setCurrentFilePath] = useState<string | null>(null);
@@ -196,6 +230,8 @@ function App() {
   const [searchMatchCount, setSearchMatchCount] = useState(0);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const [matchPositions, setMatchPositions] = useState<MatchPosition[]>([]);
+  const markdownMatchesRef = useRef<{ from: number; to: number }[]>([]);
 
   const editor = useCreateBlockNote();
 
@@ -460,40 +496,141 @@ function App() {
 
     if (fileType === "code" && cmViewRef.current) {
       // CodeMirror search
+      const view = cmViewRef.current;
       const searchQueryObj = new SearchQuery({ search: query, caseSensitive: false });
-      cmViewRef.current.dispatch({
+
+      // Move cursor to document start before searching to ensure first match is found first
+      view.dispatch({
+        selection: { anchor: 0 },
         effects: setSearchQuery.of(searchQueryObj)
       });
 
-      // Count matches
-      const cursor = searchQueryObj.getCursor(cmViewRef.current.state);
+      // Count matches and collect positions for scrollbar overlay
+      const cursor = searchQueryObj.getCursor(view.state);
       let count = 0;
-      while (!cursor.next().done) count++;
+      const positions: MatchPosition[] = [];
+      const docLength = view.state.doc.length;
+      let result = cursor.next();
+      while (!result.done) {
+        count++;
+        const matchFrom = result.value.from;
+        const linePercent = docLength > 0 ? (matchFrom / docLength) * 100 : 0;
+        positions.push({ position: matchFrom, linePercent });
+        result = cursor.next();
+      }
       setSearchMatchCount(count);
       setCurrentMatchIndex(count > 0 ? 1 : 0);
+      setMatchPositions(positions);
 
-      // Move to first match
+      // Move to first match (from document start)
       if (count > 0) {
-        findNext(cmViewRef.current);
+        findNext(view);
       }
     } else if (fileType === "markdown") {
-      // BlockNote search - get text content and count matches
-      const blocks = editor.document;
-      let totalText = "";
-      for (const block of blocks) {
-        totalText += extractTextFromBlock(block);
+      // BlockNote search using ProseMirror decorations
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const tiptapEditor = (editor as any)._tiptapEditor;
+      if (!tiptapEditor) {
+        setSearchMatchCount(0);
+        setCurrentMatchIndex(0);
+        setMatchPositions([]);
+        markdownMatchesRef.current = [];
+        return;
       }
 
-      const regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi");
-      const matches = totalText.match(regex);
-      const count = matches ? matches.length : 0;
-      setSearchMatchCount(count);
-      setCurrentMatchIndex(count > 0 ? 1 : 0);
+      const pmView = tiptapEditor.view;
+      const pmState = pmView.state;
+      const doc = pmState.doc;
+      const docSize = doc.content.size;
+
+      // Find all matches in the ProseMirror document
+      const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(escapedQuery, "gi");
+      const matches: { from: number; to: number }[] = [];
+      const positions: MatchPosition[] = [];
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      doc.descendants((node: any, pos: number) => {
+        if (node.isText && node.text) {
+          let match;
+          while ((match = regex.exec(node.text)) !== null) {
+            const from = pos + match.index;
+            const to = from + match[0].length;
+            matches.push({ from, to });
+            const linePercent = docSize > 0 ? (from / docSize) * 100 : 0;
+            positions.push({ position: from, linePercent });
+          }
+        }
+      });
+
+      markdownMatchesRef.current = matches;
+      setSearchMatchCount(matches.length);
+      setCurrentMatchIndex(matches.length > 0 ? 1 : 0);
+      setMatchPositions(positions);
+
+      // Apply decorations to highlight matches
+      if (matches.length > 0) {
+        const decorations = matches.map((m, idx) =>
+          Decoration.inline(m.from, m.to, {
+            class: idx === 0 ? "search-highlight search-highlight-current" : "search-highlight"
+          })
+        );
+        const decorationSet = DecorationSet.create(doc, decorations);
+
+        // Create or update the search highlight plugin
+        const existingPlugin = pmState.plugins.find(
+          (p: Plugin) => p.spec.key === searchHighlightPluginKey
+        );
+
+        if (!existingPlugin) {
+          const highlightPlugin = new Plugin({
+            key: searchHighlightPluginKey,
+            state: {
+              init: () => decorationSet,
+              apply: (tr, oldState) => {
+                // Keep decorations mapped through document changes
+                return oldState.map(tr.mapping, tr.doc);
+              }
+            },
+            props: {
+              decorations: (state) => {
+                const pluginState = searchHighlightPluginKey.getState(state);
+                return pluginState;
+              }
+            }
+          });
+
+          // Reconfigure editor with new plugin
+          const newState = pmState.reconfigure({
+            plugins: [...pmState.plugins, highlightPlugin]
+          });
+          pmView.updateState(newState);
+        } else {
+          // Update existing plugin state with new decorations
+          const tr = pmState.tr.setMeta(searchHighlightPluginKey, decorationSet);
+          pmView.dispatch(tr);
+        }
+
+        // Move to first match
+        const firstMatch = matches[0];
+        const tr = pmState.tr.setSelection(TextSelection.create(doc, firstMatch.from, firstMatch.to));
+        pmView.dispatch(tr);
+        pmView.focus();
+      }
     }
   }, [fileType, editor]);
 
   const navigateSearch = useCallback((direction: "next" | "prev") => {
     if (searchMatchCount === 0) return;
+
+    // Calculate new index
+    let newIndex: number;
+    if (direction === "next") {
+      newIndex = currentMatchIndex >= searchMatchCount ? 1 : currentMatchIndex + 1;
+    } else {
+      newIndex = currentMatchIndex <= 1 ? searchMatchCount : currentMatchIndex - 1;
+    }
+    setCurrentMatchIndex(newIndex);
 
     // CodeMirror-specific navigation
     if (fileType === "code" && cmViewRef.current) {
@@ -502,15 +639,45 @@ function App() {
       } else {
         findPrevious(cmViewRef.current);
       }
-    }
+    } else if (fileType === "markdown") {
+      // BlockNote/ProseMirror navigation
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const tiptapEditor = (editor as any)._tiptapEditor;
+      if (!tiptapEditor || markdownMatchesRef.current.length === 0) return;
 
-    // Update index for visual feedback (applies to both editor types)
-    if (direction === "next") {
-      setCurrentMatchIndex(prev => prev >= searchMatchCount ? 1 : prev + 1);
-    } else {
-      setCurrentMatchIndex(prev => prev <= 1 ? searchMatchCount : prev - 1);
+      const pmView = tiptapEditor.view;
+      const pmState = pmView.state;
+      const doc = pmState.doc;
+      const matches = markdownMatchesRef.current;
+
+      // Navigate to the new match (0-indexed)
+      const matchIdx = newIndex - 1;
+      const match = matches[matchIdx];
+      if (match) {
+        // Update decorations to highlight current match
+        const decorations = matches.map((m, idx) =>
+          Decoration.inline(m.from, m.to, {
+            class: idx === matchIdx ? "search-highlight search-highlight-current" : "search-highlight"
+          })
+        );
+        const decorationSet = DecorationSet.create(doc, decorations);
+        const tr = pmState.tr
+          .setMeta(searchHighlightPluginKey, decorationSet)
+          .setSelection(TextSelection.create(doc, match.from, match.to));
+        pmView.dispatch(tr);
+        pmView.focus();
+
+        // Scroll match into view
+        const domAtPos = pmView.domAtPos(match.from);
+        if (domAtPos && domAtPos.node) {
+          const element = domAtPos.node.parentElement || domAtPos.node;
+          if (element instanceof HTMLElement) {
+            element.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }
+      }
     }
-  }, [fileType, searchMatchCount]);
+  }, [fileType, searchMatchCount, currentMatchIndex, editor]);
 
   const toggleSearch = useCallback(() => {
     setShowSearch(prev => {
@@ -520,15 +687,28 @@ function App() {
         setSearchQueryState("");
         setSearchMatchCount(0);
         setCurrentMatchIndex(0);
+        setMatchPositions([]);
+        markdownMatchesRef.current = [];
         if (fileType === "code" && cmViewRef.current) {
           cmViewRef.current.dispatch({
             effects: setSearchQuery.of(new SearchQuery({ search: "" }))
           });
+        } else if (fileType === "markdown") {
+          // Clear ProseMirror search decorations
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const tiptapEditor = (editor as any)._tiptapEditor;
+          if (tiptapEditor) {
+            const pmView = tiptapEditor.view;
+            const pmState = pmView.state;
+            const emptyDecorationSet = DecorationSet.empty;
+            const tr = pmState.tr.setMeta(searchHighlightPluginKey, emptyDecorationSet);
+            pmView.dispatch(tr);
+          }
         }
       }
       return willShow;
     });
-  }, [fileType]);
+  }, [fileType, editor]);
 
   // Focus search input when search bar opens
   useEffect(() => {
@@ -545,7 +725,10 @@ function App() {
         toggleSearch();
         return;
       }
-      if (e.metaKey || e.ctrlKey) {
+      // Use metaKey (Cmd on Mac) without ctrlKey to avoid conflict with Ctrl+Cmd+F (fullscreen)
+      const isCmdOnly = e.metaKey && !e.ctrlKey;
+      const isCtrlOnly = e.ctrlKey && !e.metaKey;
+      if (isCmdOnly || isCtrlOnly) {
         if (e.key === "o") {
           e.preventDefault();
           openFile();
@@ -720,9 +903,12 @@ function App() {
               )}
             </div>
             <BlockNoteView editor={editor} />
+            {showSearch && <SearchMatchOverlay positions={matchPositions} currentIndex={currentMatchIndex} />}
           </div>
         ) : (
-          <div id="codemirror-container" ref={cmContainerRef} style={blockStyleVars} />
+          <div id="codemirror-container" ref={cmContainerRef} style={blockStyleVars}>
+            {showSearch && <SearchMatchOverlay positions={matchPositions} currentIndex={currentMatchIndex} />}
+          </div>
         )}
       </main>
     </div>
