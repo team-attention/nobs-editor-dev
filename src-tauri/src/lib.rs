@@ -169,7 +169,7 @@ pub fn run() {
             let _tray = TrayIconBuilder::new()
                 .icon(app.default_window_icon().ok_or("Default window icon not found")?.clone())
                 .menu(&menu)
-                .show_menu_on_left_click(true)
+                .menu_on_left_click(true)
                 .on_menu_event(|app, event| {
                     if event.id.as_ref() == "quit" {
                         app.exit(0);
